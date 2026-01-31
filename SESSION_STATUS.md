@@ -1,7 +1,7 @@
 # Session Status - Lead-to-Quote Engine v2
 
-> **Last Updated:** January 31, 2026
-> **Status:** Ready for Development
+> **Last Updated:** January 31, 2026 (Evening)
+> **Status:** In Development
 > **Current Phase:** Phase 0 - Project Setup
 
 ## North Star (Don't Forget)
@@ -14,24 +14,24 @@ We're building an AI-native lead-to-quote platform for renovation contractors. U
 | Metric | Status |
 |--------|--------|
 | Current Phase | Phase 0: Project Setup |
-| Next Task ID | DEV-001 |
+| Next Task ID | DEV-004 |
 | Blockers | None |
-| Build Status | Not yet initialized |
-| Branch | N/A (not yet created) |
+| Build Status | ✅ Passing |
+| Branch | feature/dev-003-shadcn-ui |
 
 ---
 
 ## Phase Progress
 
-### Phase 0: Project Setup (Days 1-2) - NOT STARTED
-- [ ] DEV-001: Initialize Next.js 16 project with TypeScript
-- [ ] DEV-002: Configure Tailwind CSS v4
-- [ ] DEV-003: Install and configure shadcn/ui components
+### Phase 0: Project Setup (Days 1-2) - IN PROGRESS
+- [x] DEV-001: Initialize Next.js 16 project with TypeScript ✅
+- [x] DEV-002: Configure Tailwind CSS v4 ✅
+- [x] DEV-003: Install and configure shadcn/ui components ✅
 - [ ] DEV-004: Set up Supabase project (Canada region)
 - [ ] DEV-005: Create database schema and migrations
 - [ ] DEV-006: Configure environment variables and secrets
 - [ ] DEV-007: Set up Vercel project and deployment
-- [ ] DEV-008: Create CLAUDE.md configuration ✅ (pre-configured)
+- [x] DEV-008: Create CLAUDE.md configuration ✅
 
 ### Phase 1: Marketing Website (Days 3-8) - NOT STARTED
 - [ ] DEV-009 through DEV-020
@@ -52,24 +52,42 @@ We're building an AI-native lead-to-quote platform for renovation contractors. U
 
 ## Recent Session Log
 
-### Session: January 31, 2026 (Setup)
+### Session: January 31, 2026 (Evening - shadcn/ui Setup)
 **Completed:**
-- Created project structure with .claude folder
-- Configured skills: ai-native-development, nextjs-patterns, supabase-patterns, typescript-strict, playwright-testing, security-compliance
-- Created CLAUDE.md with skill directives and project architecture
-- Created SESSION_STATUS.md for session continuity
-- Saved validated PRD (PRD_LEAD_TO_QUOTE_ENGINE_V2.md)
+- DEV-003: Installed and configured shadcn/ui with Tailwind v4
+  - Created components.json (New York style, neutral base)
+  - Updated globals.css with full CSS variable palette
+  - Set primary color to Red White Reno brand (#D32F2F / oklch(0.52 0.22 27))
+  - Installed core components: button, input, card
+  - Installed dependencies: class-variance-authority, lucide-react, tw-animate-css
+- Verified build passes with `npm run build`
+- Cleaned up duplicate utils file (kept shadcn's src/lib/utils.ts)
+
+**Technical Notes:**
+- shadcn/ui v3.8.1 with Tailwind v4 native support
+- Using oklch color space for all CSS variables
+- Components in src/components/ui/
+
+**Next Session:**
+1. Commit DEV-003 changes
+2. DEV-004: Set up Supabase (client library, config)
+3. DEV-005: Create database migrations from PRD schema
+4. DEV-006: Set up .env.example and environment variables
+
+---
+
+### Session: January 31, 2026 (Morning - Project Init)
+**Completed:**
+- DEV-001: Initialized Next.js 16.1.6 with TypeScript strict mode
+- DEV-002: Configured Tailwind CSS v4 with @theme inline
+- DEV-008: Created CLAUDE.md configuration
+- Set up project structure (src/components, src/lib, supabase/migrations)
 
 **Decisions Made:**
 - AI Stack validated: GPT-5.2, GPT-5.2 Vision, Gemini 3 Pro Image
 - Architecture: White-label with design tokens
 - Estimation: Internal pricing guidelines (not RSMeans)
 - Voice: Browser native STT for v1 (OpenAI Realtime for v2)
-
-**Next Session:**
-1. Run DEV-001: `npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"`
-2. Run DEV-002: Configure Tailwind v4
-3. Continue with Phase 0 tasks
 
 ---
 
@@ -114,11 +132,11 @@ None
 
 ## Notes for Next Session
 
-1. **Start Here:** Initialize the Next.js project with DEV-001
-2. **Reference:** PRD_LEAD_TO_QUOTE_ENGINE_V2.md for all specifications
-3. **Skill Usage:** Load ai-native-development skill when working on AI features
-4. **Testing:** Set up Playwright early for mobile viewport testing
-5. **Branch:** Create `feature/phase-0-setup` branch after init
+1. **Start Here:** Commit DEV-003 changes, then DEV-004 (Supabase setup)
+2. **Reference:** PRD_LEAD_TO_QUOTE_ENGINE_V2.md for database schema
+3. **Skill Usage:** Load supabase-patterns skill for database work
+4. **Branch:** Currently on feature/dev-003-shadcn-ui (merge to main after commit)
+5. **Dependencies:** Need Supabase project URL and keys before DEV-004
 
 ---
 
@@ -126,6 +144,8 @@ None
 
 | Date | Session | Changes |
 |------|---------|---------|
+| 2026-01-31 | Evening | DEV-003: shadcn/ui installed with brand colors |
+| 2026-01-31 | Morning | DEV-001, DEV-002: Next.js 16 + Tailwind v4 initialized |
 | 2026-01-31 | Initial | Project structure created, PRD validated, ready for development |
 
 ---
