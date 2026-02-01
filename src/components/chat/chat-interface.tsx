@@ -51,27 +51,71 @@ interface ChatMessage {
   createdAt?: Date | undefined;
 }
 
+interface VisualizationContext {
+  id: string;
+  roomType: string;
+  style: string;
+  originalPhotoUrl: string;
+  constraints?: string | undefined;
+}
+
 interface ChatInterfaceProps {
   initialMessages?: ChatMessage[] | undefined;
   sessionId?: string | undefined;
+  visualizationContext?: VisualizationContext | undefined;
 }
 
 const WELCOME_MESSAGE = "Hi! I'm your renovation assistant from Red White Reno. I'm here to help you get a preliminary estimate for your project.\n\nTo get started, you can upload a photo of your space, or just tell me what kind of renovation you're thinking about!";
 
-export function ChatInterface({ initialMessages, sessionId: initialSessionId }: ChatInterfaceProps) {
+// Map visualization room type to estimate project type
+function mapRoomTypeToProjectType(roomType: string): string {
+  const mapping: Record<string, string> = {
+    kitchen: 'kitchen',
+    bathroom: 'bathroom',
+    living_room: 'other',
+    bedroom: 'other',
+    basement: 'basement',
+    dining_room: 'other',
+  };
+  return mapping[roomType] || 'other';
+}
+
+// Generate a custom welcome message when coming from visualizer
+function getVisualizationWelcomeMessage(context: VisualizationContext): string {
+  const roomType = context.roomType.replace(/_/g, ' ');
+  const style = context.style.charAt(0).toUpperCase() + context.style.slice(1);
+
+  return `Hi! I see you've been exploring designs for your ${roomType} renovation in a ${style} style - it looks great! 🎨\n\nI'm your renovation assistant from Red White Reno. I can help turn that vision into a detailed estimate.\n\nTo get started, could you tell me a bit more about the space? For example:\n- What's the approximate size of the room?\n- When are you hoping to start the project?\n- Is there anything specific from your visualization you want to prioritize?`;
+}
+
+export function ChatInterface({ initialMessages, sessionId: initialSessionId, visualizationContext }: ChatInterfaceProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [sessionId, setSessionId] = useState<string | undefined>(initialSessionId);
   const [showSaveModal, setShowSaveModal] = useState(false);
 
-  // Determine starting messages
+  // Determine starting messages based on context
+  const welcomeMessage = visualizationContext
+    ? getVisualizationWelcomeMessage(visualizationContext)
+    : WELCOME_MESSAGE;
+
   const startingMessages: ChatMessage[] = initialMessages && initialMessages.length > 0
     ? initialMessages
-    : [{ id: 'welcome', role: 'assistant', content: WELCOME_MESSAGE }];
+    : [{ id: 'welcome', role: 'assistant', content: welcomeMessage }];
 
   const [localMessages, setLocalMessages] = useState<ChatMessage[]>(startingMessages);
-  const [estimateData, setEstimateData] = useState<EstimateData>({});
+
+  // Initialize estimate data with visualization context if available
+  const initialEstimateData: EstimateData = visualizationContext
+    ? {
+        projectType: mapRoomTypeToProjectType(visualizationContext.roomType),
+      }
+    : {};
+
+  const [estimateData, setEstimateData] = useState<EstimateData>(initialEstimateData);
   const [uploadedImages, setUploadedImages] = useState<Map<string, string[]>>(new Map());
-  const [progressStep, setProgressStep] = useState<ProgressStep>('welcome');
+  const [progressStep, setProgressStep] = useState<ProgressStep>(
+    visualizationContext ? 'photo' : 'welcome'
+  );
 
   // Create transport with memoization to avoid recreation on every render
   const transport = useMemo(() => new DefaultChatTransport({

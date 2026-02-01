@@ -1,8 +1,8 @@
 # Session Status - Lead-to-Quote Engine v2
 
-> **Last Updated:** February 1, 2026 (Phase 2 Complete + Phase 3 Started)
+> **Last Updated:** February 1, 2026 (Phase 3 Complete + Phase 4 Started)
 > **Status:** In Development
-> **Current Phase:** Phase 3 - AI Design Visualizer (Foundation Complete)
+> **Current Phase:** Phase 4 - Admin Dashboard (Foundation Complete)
 
 ## North Star (Don't Forget)
 We're building an AI-native lead-to-quote platform for renovation contractors. Users chat with AI to describe their project, upload photos for instant visualization, and get ballpark estimates in minutes instead of days. First client: Red White Reno (Stratford, ON).
@@ -13,8 +13,8 @@ We're building an AI-native lead-to-quote platform for renovation contractors. U
 
 | Metric | Status |
 |--------|--------|
-| Current Phase | Phase 3: AI Design Visualizer |
-| Next Task ID | DEV-038 |
+| Current Phase | Phase 4: Admin Dashboard |
+| Next Task ID | DEV-049 |
 | Blockers | None |
 | Build Status | ✅ Passing |
 | Production URL | https://leadquoteenginev2.vercel.app |
@@ -62,19 +62,33 @@ We're building an AI-native lead-to-quote platform for renovation contractors. U
 - [x] DEV-031: Save/resume with magic links ✅
 - [x] DEV-032: Email notifications ✅
 
-### Phase 3: AI Design Visualizer (Days 19-26) - IN PROGRESS
+### Phase 3: AI Design Visualizer (Days 19-26) - COMPLETE ✅
 - [x] DEV-033: Visualizer page layout ✅
 - [x] DEV-034: Photo upload component ✅
 - [x] DEV-035: Room type selector ✅
 - [x] DEV-036: Style selector ✅
 - [x] DEV-037: Constraints input ✅
-- [ ] DEV-038: AI image generation API
-- [ ] DEV-039: Result display with comparison
-- [ ] DEV-040: Save/share visualizations
-- [ ] DEV-041 through DEV-044: Additional visualizer features
+- [x] DEV-038: AI image generation API ✅
+- [x] DEV-039: Result display with comparison ✅
+- [x] DEV-040: Save/share visualizations ✅
+- [x] DEV-041: Download with watermark ✅
+- [x] DEV-042: Link to quote assistant ✅
+- [x] DEV-043: Loading states and animations ✅
+- [x] DEV-044: Email capture for non-quote users ✅
 
-### Phase 4: Admin Dashboard (Days 27-35) - NOT STARTED
-- [ ] DEV-045 through DEV-060
+### Phase 4: Admin Dashboard (Days 27-35) - IN PROGRESS
+- [x] DEV-045: Admin layout with sidebar ✅
+- [x] DEV-046: Login page with Supabase Auth ✅
+- [x] DEV-047: Route protection middleware ✅
+- [x] DEV-048: Dashboard overview with metrics ✅
+- [ ] DEV-049: Leads table with sorting/filtering
+- [ ] DEV-050: Lead search
+- [ ] DEV-051: Lead detail page
+- [ ] DEV-052: Photo gallery component
+- [ ] DEV-053: Chat transcript display
+- [ ] DEV-054: Quote line item editor
+- [ ] DEV-055: Auto-calculate totals
+- [ ] DEV-056 through DEV-060: PDF generation, email, status management, audit logging
 
 ### Phase 5: Testing & Launch (Days 36-42) - NOT STARTED
 - [ ] DEV-061 through DEV-071
@@ -83,129 +97,97 @@ We're building an AI-native lead-to-quote platform for renovation contractors. U
 
 ## Recent Session Log
 
-### Session: February 1, 2026 (Phase 2 Completion + Phase 3 Start)
+### Session: February 1, 2026 (Phase 3 Complete + Phase 4 Start)
 **Completed:**
-- DEV-029: Progress indicator showing conversation stage
-- DEV-030: Quick-reply buttons for common responses
-- DEV-031: Save/resume with magic links
-- DEV-032: Email notifications for leads
-- DEV-033-037: Visualizer page foundation
+- DEV-038: AI Image Generation API (Gemini integration with placeholders)
+- DEV-039: Result display with before/after slider
+- DEV-040: Save/share visualizations with share URLs
+- DEV-041: Download with watermark (Canvas-based)
+- DEV-042: Link visualizer to quote assistant
+- DEV-043: Loading states and animations
+- DEV-044: Email capture for non-quote users (CASL-compliant)
+- DEV-045: Admin layout with sidebar
+- DEV-046: Login page with Supabase Auth
+- DEV-047: Route protection middleware (already existed)
+- DEV-048: Dashboard overview with metrics
 
 **New Dependencies Installed:**
-- `resend` - Transactional email service
-- `@react-email/components` - Email template components
+- `@ai-sdk/google` - Google AI SDK for Gemini
 
 **New Files Created:**
-- `src/components/chat/progress-indicator.tsx` - Step-by-step progress UI
-- `src/components/chat/quick-replies.tsx` - Contextual quick reply buttons
-- `src/components/chat/save-progress-modal.tsx` - Email capture for magic links
-- `src/app/api/sessions/save/route.ts` - Save session API
-- `src/app/api/sessions/[id]/route.ts` - Get session for resume
-- `src/app/estimate/resume/page.tsx` - Resume page
-- `src/app/estimate/resume/resume-chat.tsx` - Resume chat client component
-- `src/lib/email/resend.ts` - Resend email service
-- `src/emails/session-resume.tsx` - Magic link email template
-- `src/emails/lead-confirmation.tsx` - Customer confirmation email
-- `src/emails/new-lead-notification.tsx` - Owner notification email
-- `src/app/visualizer/page.tsx` - Visualizer landing page
-- `src/components/visualizer/visualizer-form.tsx` - Step-by-step form
-- `src/components/visualizer/photo-upload.tsx` - Drag & drop photo upload
-- `src/components/visualizer/room-type-selector.tsx` - Room type cards
-- `src/components/visualizer/style-selector.tsx` - Design style cards
-- `src/components/visualizer/index.ts` - Component exports
+- `src/lib/ai/gemini.ts` - Google AI provider setup
+- `src/lib/ai/visualization.ts` - Visualization prompt builder
+- `src/lib/schemas/visualization.ts` - Zod schemas for visualization
+- `src/app/api/ai/visualize/route.ts` - AI visualization API endpoint
+- `src/app/api/visualizations/route.ts` - Visualizations CRUD API
+- `src/app/api/visualizations/[id]/route.ts` - Individual visualization API
+- `src/components/visualizer/before-after-slider.tsx` - Interactive comparison slider
+- `src/components/visualizer/concept-thumbnails.tsx` - Concept selection thumbnails
+- `src/components/visualizer/result-display.tsx` - Complete results view
+- `src/components/visualizer/generation-loading.tsx` - Loading experience with tips
+- `src/components/visualizer/save-visualization-modal.tsx` - Save/share modal
+- `src/components/visualizer/download-button.tsx` - Download with watermark
+- `src/components/visualizer/email-capture-modal.tsx` - Email capture before download
+- `src/lib/utils/watermark.ts` - Canvas watermarking utility
+- `src/app/visualizer/share/[token]/page.tsx` - Shared visualization page
+- `src/app/visualizer/share/[token]/shared-view.tsx` - Shared view client component
+- `src/app/estimate/estimate-client.tsx` - Client component for visualization context
+- `supabase/migrations/20260201000000_visualizations_table.sql` - Visualizations table
+- `src/components/admin/sidebar.tsx` - Admin navigation sidebar
+- `src/components/admin/header.tsx` - Admin header component
+- `src/components/admin/login-form.tsx` - Login form component
+- `src/components/admin/metrics-cards.tsx` - Dashboard KPI cards
+- `src/components/admin/recent-leads.tsx` - Recent leads list
+- `src/lib/auth/admin.ts` - Admin auth helpers
+- `src/app/admin/layout.tsx` - Admin layout wrapper
 
 **Modified Files:**
-- `src/components/chat/chat-interface.tsx` - Added progress, quick replies, save
-- `src/components/chat/index.ts` - Added new exports
-- `src/app/api/leads/route.ts` - Added email notifications
+- `src/types/database.ts` - Added visualizations table types
+- `src/lib/ai/config.ts` - Added Gemini configuration
+- `src/components/visualizer/visualizer-form.tsx` - Integrated API and result display
+- `src/components/visualizer/index.ts` - Added new exports
+- `src/components/chat/chat-interface.tsx` - Added visualization context support
+- `src/app/estimate/page.tsx` - Added Suspense for search params
+- `src/app/admin/page.tsx` - Full dashboard implementation
+- `src/app/admin/login/page.tsx` - Complete login page
 
 **Features Implemented:**
 
-**Progress Indicator (DEV-029):**
-- Visual step indicator (7 steps: Welcome, Photo, Type, Details, Scope, Estimate, Contact)
-- Mobile: compact progress bar with step label
-- Desktop: horizontal stepper with icons
-- Automatically detects current step from conversation content
+**AI Design Visualizer (Complete):**
+- Photo upload with room type and style selection
+- AI image generation API (placeholder images until Gemini fully integrated)
+- Interactive before/after slider with drag support
+- 4 concept thumbnails with selection
+- Loading experience with progress bar and tips carousel
+- Save visualization with email capture
+- Share visualization via unique URL
+- Download with watermark (Red White Reno branding + AI disclaimer)
+- Email capture modal before first download
+- Link to Quote Assistant with visualization context
+- Share page at /visualizer/share/[token]
 
-**Quick Replies (DEV-030):**
-- Contextual buttons appear based on AI's last message
-- Categories: project_type, finish_level, timeline, kitchen_scope, bathroom_scope
-- Horizontal scrollable on mobile
-- Click sends message directly
-
-**Save/Resume (DEV-031):**
-- "Save Progress" button appears after first exchange
-- Modal captures email address
-- Saves session to chat_sessions table
-- Sends magic link via Resend
-- Resume page at /estimate/resume?session={id}
-- Session expires after 7 days
-
-**Email Notifications (DEV-032):**
-- Customer confirmation email with estimate summary
-- Owner notification with lead details and reply-to
-- Emails sent asynchronously (don't block lead creation)
-- React Email templates with Red White Reno branding
-
-**Visualizer Foundation (DEV-033-037):**
-- Step-by-step wizard: Photo → Room → Style → Constraints → Generate
-- Photo upload with drag & drop, preview, compression, tips
-- Room type selector (6 types with icons)
-- Style selector (6 styles with visual cards)
-- Optional constraints text input
-- Placeholder for AI generation (to be implemented in DEV-038+)
+**Admin Dashboard Foundation (4 tasks complete):**
+- Admin layout with responsive sidebar navigation
+- Mobile sidebar using Sheet component
+- Admin header with page titles
+- Login page with Supabase email/password auth
+- Route protection middleware (redirects to login)
+- Dashboard with metrics cards (leads, conversion, quote value, response time)
+- Recent leads list with status badges
+- Quick actions section
 
 **Technical Notes:**
-- Resend client uses lazy initialization to avoid build-time errors
+- Gemini image generation using @ai-sdk/google (placeholders until API fully supports output)
+- Canvas API for client-side watermarking
 - exactOptionalPropertyTypes requires `| undefined` on all optional props
-- Zod v4: use `.issues[0]` instead of `.errors[0]` for error messages
-- React Email components need to be in separate files (not co-located)
+- useSearchParams requires Suspense boundary in Next.js 16
+- Admin routes use force-dynamic for real-time data
 
 **Next Session:**
-1. DEV-038: Implement AI image generation API (Gemini 3 Pro Image)
-2. DEV-039: Result display with before/after comparison
-3. Test full quote flow with OPENAI_API_KEY
-4. Test email flow with RESEND_API_KEY
-
----
-
-### Session: February 1, 2026 (Phase 2: AI Quote Assistant Core)
-**Completed:**
-- DEV-021 through DEV-028: Full AI Quote Assistant infrastructure
-
-**New Dependencies Installed:**
-- `ai` (Vercel AI SDK v6)
-- `@ai-sdk/openai` (OpenAI provider)
-- `@ai-sdk/react` (React hooks)
-
-**New Files Created:**
-- `src/lib/ai/config.ts` - AI model configuration
-- `src/lib/ai/providers.ts` - OpenAI provider setup
-- `src/lib/ai/prompts.ts` - System prompts for quote assistant
-- `src/lib/ai/question-flow.ts` - Conversation state machine
-- `src/lib/ai/vision.ts` - Vision analysis functions
-- `src/lib/ai/extraction.ts` - Lead data extraction
-- `src/lib/schemas/conversation.ts` - Conversation types
-- `src/lib/schemas/room-analysis.ts` - Room analysis Zod schema
-- `src/lib/schemas/lead-extraction.ts` - Lead extraction Zod schema
-- `src/lib/pricing/constants.ts` - Pricing guidelines
-- `src/lib/pricing/engine.ts` - Estimate calculator
-- `src/lib/utils/image.ts` - Client-side image compression
-- `src/components/chat/chat-interface.tsx` - Main chat container
-- `src/components/chat/message-bubble.tsx` - Message display
-- `src/components/chat/chat-input.tsx` - Input with image upload
-- `src/components/chat/typing-indicator.tsx` - Loading indicator
-- `src/components/chat/estimate-sidebar.tsx` - Live estimate panel
-- `src/components/chat/index.ts` - Component exports
-- `src/app/estimate/page.tsx` - /estimate route
-- `src/app/api/ai/chat/route.ts` - Streaming chat API (Edge)
-- `src/app/api/leads/route.ts` - Lead submission to Supabase
-
-**Technical Notes:**
-- AI SDK v6 has significant API changes from earlier versions
-- TypeScript strict mode with `exactOptionalPropertyTypes: true`
-- Zod v4: `z.record(z.unknown())` → `z.record(z.string(), z.unknown())`
-- Image compression: client-side Canvas API, max 1920px, JPEG quality 0.8
+1. DEV-049: Leads table with sorting/filtering
+2. DEV-050: Lead search functionality
+3. DEV-051: Lead detail page
+4. DEV-052 through DEV-055: Additional admin features
 
 ---
 
@@ -229,7 +211,7 @@ Before starting development:
 | Service | Purpose | Env Variable |
 |---------|---------|--------------|
 | OpenAI | Chat + Vision | `OPENAI_API_KEY` |
-| Google AI | Image generation | `GOOGLE_AI_API_KEY` |
+| Google AI | Image generation | `GOOGLE_GENERATIVE_AI_API_KEY` |
 | Supabase | Database + Auth | `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` |
 | Resend | Email | `RESEND_API_KEY` |
 | Vercel | Analytics (optional) | `VERCEL_ANALYTICS_ID` |
@@ -250,10 +232,10 @@ None
 
 ## Notes for Next Session
 
-1. **Start Here:** DEV-038 - AI image generation API with Gemini 3 Pro Image
-2. **Then:** DEV-039 - Result display with before/after comparison
-3. **Test:** Run full chat flow with OPENAI_API_KEY in .env.local
-4. **Test:** Run email flow with RESEND_API_KEY in .env.local
+1. **Start Here:** DEV-049 - Leads table with sorting/filtering
+2. **Then:** DEV-050 through DEV-055 to complete admin dashboard foundation
+3. **Test:** Admin dashboard at /admin with Supabase auth
+4. **Test:** Visualizer flow with placeholder images
 5. **Deferred:** DEV-019 (SEO), DEV-020 (Google Reviews) - can do later
 6. **Cleanup:** Remove /test-db and /api/debug-auth pages before production launch
 7. **Production URL:** https://leadquoteenginev2.vercel.app
@@ -264,6 +246,7 @@ None
 
 | Date | Session | Changes |
 |------|---------|---------|
+| 2026-02-01 | Phase 3 Complete + Phase 4 Start | DEV-038 through DEV-048: AI Visualizer complete, Admin foundation |
 | 2026-02-01 | Phase 2 Complete + Phase 3 Start | DEV-029 through DEV-037: UX polish + Visualizer foundation |
 | 2026-02-01 | Phase 2 Core | DEV-021 through DEV-028: AI Quote Assistant infrastructure |
 | 2026-02-01 | Marketing Sprint | DEV-010 through DEV-018: All core marketing pages |

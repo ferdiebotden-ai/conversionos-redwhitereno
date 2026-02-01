@@ -1,13 +1,30 @@
+import { Sparkles } from 'lucide-react';
+import { LoginForm } from '@/components/admin/login-form';
+
 export default function AdminLoginPage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <div className="w-full max-w-md rounded-lg border border-border bg-card p-8 shadow-lg">
-        <h1 className="mb-6 text-center text-2xl font-bold">Admin Login</h1>
-        <p className="text-center text-muted-foreground">
-          Login form will be implemented in DEV-046.
-        </p>
-        <p className="mt-4 text-center text-sm text-muted-foreground">
-          Middleware is correctly protecting admin routes.
+    <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-muted/30">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mb-4">
+            <Sparkles className="w-7 h-7 text-primary-foreground" />
+          </div>
+          <h1 className="text-2xl font-bold">Red White Reno</h1>
+          <p className="text-muted-foreground">Admin Dashboard</p>
+        </div>
+
+        {/* Login card */}
+        <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-center mb-6">
+            Sign in to your account
+          </h2>
+          <LoginForm />
+        </div>
+
+        {/* Footer */}
+        <p className="text-xs text-center text-muted-foreground mt-6">
+          Lead-to-Quote Engine v2 &bull; Powered by AI
         </p>
       </div>
     </main>

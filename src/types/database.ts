@@ -301,6 +301,77 @@ export type Database = {
         };
         Relationships: [];
       };
+      visualizations: {
+        Row: {
+          id: string;
+          created_at: string;
+          updated_at: string;
+          email: string | null;
+          original_photo_url: string;
+          room_type: VisualizationRoomType;
+          style: VisualizationStyle;
+          constraints: string | null;
+          generated_concepts: Json;
+          generation_time_ms: number | null;
+          lead_id: string | null;
+          shared: boolean;
+          share_token: string | null;
+          downloaded: boolean;
+          download_count: number;
+          source: string;
+          device_type: string | null;
+          user_agent: string | null;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+          email?: string | null;
+          original_photo_url: string;
+          room_type: VisualizationRoomType;
+          style: VisualizationStyle;
+          constraints?: string | null;
+          generated_concepts?: Json;
+          generation_time_ms?: number | null;
+          lead_id?: string | null;
+          shared?: boolean;
+          share_token?: string | null;
+          downloaded?: boolean;
+          download_count?: number;
+          source?: string;
+          device_type?: string | null;
+          user_agent?: string | null;
+        };
+        Update: {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+          email?: string | null;
+          original_photo_url?: string;
+          room_type?: VisualizationRoomType;
+          style?: VisualizationStyle;
+          constraints?: string | null;
+          generated_concepts?: Json;
+          generation_time_ms?: number | null;
+          lead_id?: string | null;
+          shared?: boolean;
+          share_token?: string | null;
+          downloaded?: boolean;
+          download_count?: number;
+          source?: string;
+          device_type?: string | null;
+          user_agent?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'visualizations_lead_id_fkey';
+            columns: ['lead_id'];
+            isOneToOne: false;
+            referencedRelation: 'leads';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -324,6 +395,8 @@ export type Timeline = 'asap' | '1_3_months' | '3_6_months' | '6_plus_months' | 
 export type BudgetBand = 'under_15k' | '15k_25k' | '25k_40k' | '40k_60k' | '60k_plus' | 'not_sure';
 export type FinishLevel = 'economy' | 'standard' | 'premium';
 export type ChatSessionState = 'active' | 'completed' | 'expired' | 'abandoned';
+export type VisualizationRoomType = 'kitchen' | 'bathroom' | 'living_room' | 'bedroom' | 'basement' | 'dining_room';
+export type VisualizationStyle = 'modern' | 'traditional' | 'farmhouse' | 'industrial' | 'minimalist' | 'contemporary';
 
 // Helper types for convenience
 export type Lead = Database['public']['Tables']['leads']['Row'];
@@ -340,6 +413,10 @@ export type ChatSessionUpdate = Database['public']['Tables']['chat_sessions']['U
 
 export type AuditLog = Database['public']['Tables']['audit_log']['Row'];
 export type AuditLogInsert = Database['public']['Tables']['audit_log']['Insert'];
+
+export type Visualization = Database['public']['Tables']['visualizations']['Row'];
+export type VisualizationInsert = Database['public']['Tables']['visualizations']['Insert'];
+export type VisualizationUpdate = Database['public']['Tables']['visualizations']['Update'];
 
 // Quote line item type (used in quote_drafts.line_items)
 export interface QuoteLineItem {

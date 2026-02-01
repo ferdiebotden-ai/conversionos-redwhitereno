@@ -5,21 +5,29 @@
  * Step-by-step form for AI design visualization
  */
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { PhotoUpload } from './photo-upload';
 import { RoomTypeSelector, type RoomType } from './room-type-selector';
 import { StyleSelector, type DesignStyle } from './style-selector';
+import { ResultDisplay } from './result-display';
+import { GenerationLoading } from './generation-loading';
+import type {
+  VisualizationResponse,
+  VisualizationError,
+} from '@/lib/schemas/visualization';
 import {
   ArrowLeft,
   ArrowRight,
   Sparkles,
   Check,
+  AlertCircle,
 } from 'lucide-react';
 
-type Step = 'photo' | 'room' | 'style' | 'constraints' | 'generating' | 'result';
+type Step = 'photo' | 'room' | 'style' | 'constraints' | 'generating' | 'result' | 'error';
 
 interface FormData {
   photo: string | null;
@@ -37,6 +45,7 @@ const STEPS: { id: Step; label: string }[] = [
 ];
 
 export function VisualizerForm() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState<Step>('photo');
   const [formData, setFormData] = useState<FormData>({
     photo: null,
@@ -45,6 +54,9 @@ export function VisualizerForm() {
     style: null,
     constraints: '',
   });
+  const [visualization, setVisualization] = useState<VisualizationResponse | null>(null);
+  const [error, setError] = useState<VisualizationError | null>(null);
+  const [generationProgress, setGenerationProgress] = useState(0);
 
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
 
@@ -74,16 +86,69 @@ export function VisualizerForm() {
     if (currentStep === 'room') setCurrentStep('photo');
     else if (currentStep === 'style') setCurrentStep('room');
     else if (currentStep === 'constraints') setCurrentStep('style');
+    else if (currentStep === 'error') setCurrentStep('constraints');
   };
 
-  const handleGenerate = () => {
+  const handleGenerate = useCallback(async () => {
+    if (!formData.photo || !formData.roomType || !formData.style) return;
+
     setCurrentStep('generating');
-    // TODO: Call AI generation API in DEV-038+
-    // For now, simulate with a timeout
-    setTimeout(() => {
-      setCurrentStep('result');
-    }, 3000);
-  };
+    setGenerationProgress(0);
+    setError(null);
+
+    // Simulate progress updates while waiting
+    const progressInterval = setInterval(() => {
+      setGenerationProgress((prev) => {
+        // Slow down as we approach 90%
+        if (prev < 30) return prev + 5;
+        if (prev < 60) return prev + 3;
+        if (prev < 85) return prev + 1;
+        return prev;
+      });
+    }, 500);
+
+    try {
+      const response = await fetch('/api/ai/visualize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          image: formData.photo,
+          roomType: formData.roomType,
+          style: formData.style,
+          constraints: formData.constraints || undefined,
+          count: 4,
+        }),
+      });
+
+      clearInterval(progressInterval);
+
+      if (!response.ok) {
+        const errorData: VisualizationError = await response.json();
+        setError(errorData);
+        setCurrentStep('error');
+        return;
+      }
+
+      const data: VisualizationResponse = await response.json();
+      setVisualization(data);
+      setGenerationProgress(100);
+
+      // Brief delay to show 100% before transitioning
+      setTimeout(() => {
+        setCurrentStep('result');
+      }, 500);
+    } catch (err) {
+      clearInterval(progressInterval);
+      setError({
+        error: 'Failed to connect to visualization service',
+        code: 'UNKNOWN',
+        details: err instanceof Error ? err.message : 'Unknown error',
+      });
+      setCurrentStep('error');
+    }
+  }, [formData]);
 
   const handleStartOver = () => {
     setFormData({
@@ -93,57 +158,75 @@ export function VisualizerForm() {
       style: null,
       constraints: '',
     });
+    setVisualization(null);
+    setError(null);
     setCurrentStep('photo');
   };
 
-  // Generating state
-  if (currentStep === 'generating') {
+  const handleGetQuote = () => {
+    // Navigate to estimate page with visualization context
+    const params = new URLSearchParams();
+    if (visualization?.id) {
+      params.set('visualization', visualization.id);
+    }
+    router.push(`/estimate?${params.toString()}`);
+  };
+
+  const handleRetry = () => {
+    handleGenerate();
+  };
+
+  // Error state
+  if (currentStep === 'error') {
     return (
-      <div className="flex flex-col items-center justify-center py-16 px-4">
-        <div className="relative">
-          <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
-            <Sparkles className="w-12 h-12 text-primary animate-pulse" />
-          </div>
-          <div className="absolute inset-0 rounded-full border-4 border-primary/30 border-t-primary animate-spin" />
+      <div className="flex flex-col items-center justify-center py-16 px-4 max-w-md mx-auto">
+        <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-6">
+          <AlertCircle className="w-8 h-8 text-red-600" />
         </div>
-        <h2 className="text-2xl font-bold mt-8">Creating Your Vision</h2>
-        <p className="text-muted-foreground mt-2 text-center max-w-md">
-          Our AI is reimagining your space in the {formData.style} style.
-          This usually takes 15-30 seconds.
+        <h2 className="text-2xl font-bold text-center">Generation Failed</h2>
+        <p className="text-muted-foreground mt-2 text-center">
+          {error?.error || 'Something went wrong while generating your visualization.'}
         </p>
+        {error?.details && (
+          <p className="text-sm text-muted-foreground mt-2 text-center">
+            {error.details}
+          </p>
+        )}
+        <div className="flex gap-4 mt-8">
+          <Button variant="outline" onClick={handleBack}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Go Back
+          </Button>
+          <Button onClick={handleRetry}>
+            <Sparkles className="w-4 h-4 mr-2" />
+            Try Again
+          </Button>
+        </div>
       </div>
     );
   }
 
-  // Result state (placeholder - will be expanded in DEV-038+)
-  if (currentStep === 'result') {
+  // Generating state with enhanced loading
+  if (currentStep === 'generating') {
     return (
-      <div className="flex flex-col items-center py-12 px-4">
-        <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-6">
-          <Check className="w-8 h-8 text-green-600" />
-        </div>
-        <h2 className="text-2xl font-bold">Visualization Complete!</h2>
-        <p className="text-muted-foreground mt-2 text-center max-w-md">
-          Your {formData.roomType?.replace('_', ' ')} has been reimagined in the{' '}
-          {formData.style} style.
-        </p>
+      <GenerationLoading
+        style={formData.style || 'modern'}
+        roomType={formData.roomType || 'kitchen'}
+        progress={generationProgress}
+        onCancel={handleStartOver}
+      />
+    );
+  }
 
-        {/* Placeholder for results */}
-        <div className="w-full max-w-2xl mt-8 aspect-video rounded-xl bg-muted flex items-center justify-center border-2 border-dashed border-border">
-          <p className="text-muted-foreground">
-            Generated visualization will appear here
-          </p>
-        </div>
-
-        <div className="flex gap-4 mt-8">
-          <Button variant="outline" onClick={handleStartOver}>
-            Start Over
-          </Button>
-          <Button>
-            Get a Quote for This Design
-          </Button>
-        </div>
-      </div>
+  // Result state with before/after comparison
+  if (currentStep === 'result' && visualization && formData.photo) {
+    return (
+      <ResultDisplay
+        visualization={visualization}
+        originalImage={formData.photo}
+        onStartOver={handleStartOver}
+        onGetQuote={handleGetQuote}
+      />
     );
   }
 

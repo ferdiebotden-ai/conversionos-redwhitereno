@@ -10,6 +10,9 @@ export const AI_CONFIG = {
     vision: 'gpt-4o',          // Photo analysis (multimodal)
     moderation: 'omni-moderation-latest',
   },
+  google: {
+    imageGeneration: 'gemini-2.0-flash-exp', // Image generation model
+  },
   parameters: {
     chat: {
       maxTokens: 1024,
@@ -22,6 +25,12 @@ export const AI_CONFIG = {
     vision: {
       maxTokens: 1024,
       temperature: 0.5,
+    },
+    imageGeneration: {
+      structureReferenceStrength: 0.85, // Preserve room geometry
+      styleStrength: 0.4,               // Apply style without overwhelming
+      outputCount: 4,                   // Generate 4 variations
+      timeout: 90000,                   // 90 second timeout
     },
   },
 } as const;
