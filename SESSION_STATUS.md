@@ -1,6 +1,6 @@
 # Session Status - Lead-to-Quote Engine v2
 
-> **Last Updated:** January 31, 2026 (Evening)
+> **Last Updated:** January 31, 2026 (Night)
 > **Status:** In Development
 > **Current Phase:** Phase 0 - Project Setup
 
@@ -14,10 +14,10 @@ We're building an AI-native lead-to-quote platform for renovation contractors. U
 | Metric | Status |
 |--------|--------|
 | Current Phase | Phase 0: Project Setup |
-| Next Task ID | DEV-004 |
+| Next Task ID | DEV-005 |
 | Blockers | None |
 | Build Status | ✅ Passing |
-| Branch | feature/dev-003-shadcn-ui |
+| Branch | feature/dev-004-supabase |
 
 ---
 
@@ -27,9 +27,9 @@ We're building an AI-native lead-to-quote platform for renovation contractors. U
 - [x] DEV-001: Initialize Next.js 16 project with TypeScript ✅
 - [x] DEV-002: Configure Tailwind CSS v4 ✅
 - [x] DEV-003: Install and configure shadcn/ui components ✅
-- [ ] DEV-004: Set up Supabase project (Canada region)
+- [x] DEV-004: Set up Supabase project (Canada region) ✅
 - [ ] DEV-005: Create database schema and migrations
-- [ ] DEV-006: Configure environment variables and secrets
+- [x] DEV-006: Configure environment variables and secrets ✅
 - [ ] DEV-007: Set up Vercel project and deployment
 - [x] DEV-008: Create CLAUDE.md configuration ✅
 
@@ -51,6 +51,36 @@ We're building an AI-native lead-to-quote platform for renovation contractors. U
 ---
 
 ## Recent Session Log
+
+### Session: January 31, 2026 (Night - Supabase Setup)
+**Completed:**
+- DEV-004: Set up Supabase client and configuration
+  - Installed @supabase/supabase-js, @supabase/ssr, zod
+  - Created browser client (src/lib/db/client.ts)
+  - Created server client with RLS support (src/lib/db/server.ts)
+  - Created service client for admin operations (bypasses RLS)
+  - Created middleware for auth session refresh and admin route protection
+  - Created placeholder database types matching PRD schema (src/types/database.ts)
+- DEV-006: Configured environment variables
+  - Created .env.example template (committed)
+  - Created .env.local with Supabase credentials (gitignored)
+- Created test page at /test-db for connection verification
+- Created placeholder /admin/login page for middleware testing
+
+**Technical Notes:**
+- Using bracket notation for process.env access (TypeScript strict mode)
+- Middleware MUST be in src/middleware.ts (not project root) when using src/ directory
+- Middleware protects /admin/* routes, redirects to /admin/login
+- Next.js 16 deprecation warning: middleware → proxy pattern (works for now)
+- Database types are placeholder - regenerate after DEV-005 migrations
+- Test pages (/test-db, /api/debug-auth) should be removed before production
+
+**Next Session:**
+1. Commit DEV-004/DEV-006 changes
+2. DEV-005: Create database migrations from PRD schema
+3. DEV-007: Set up Vercel project and deployment
+
+---
 
 ### Session: January 31, 2026 (Evening - shadcn/ui Setup)
 **Completed:**
@@ -132,11 +162,11 @@ None
 
 ## Notes for Next Session
 
-1. **Start Here:** Commit DEV-003 changes, then DEV-004 (Supabase setup)
+1. **Start Here:** Commit DEV-004/DEV-006 changes, then DEV-005 (database migrations)
 2. **Reference:** PRD_LEAD_TO_QUOTE_ENGINE_V2.md for database schema
-3. **Skill Usage:** Load supabase-patterns skill for database work
-4. **Branch:** Currently on feature/dev-003-shadcn-ui (merge to main after commit)
-5. **Dependencies:** Need Supabase project URL and keys before DEV-004
+3. **Skill Usage:** Load supabase-patterns skill for migration work
+4. **Branch:** Create feature/dev-005-migrations after merging DEV-004
+5. **Cleanup:** Remove /test-db page after verification
 
 ---
 
@@ -144,6 +174,7 @@ None
 
 | Date | Session | Changes |
 |------|---------|---------|
+| 2026-01-31 | Night | DEV-004, DEV-006: Supabase client, middleware, env config |
 | 2026-01-31 | Evening | DEV-003: shadcn/ui installed with brand colors |
 | 2026-01-31 | Morning | DEV-001, DEV-002: Next.js 16 + Tailwind v4 initialized |
 | 2026-01-31 | Initial | Project structure created, PRD validated, ready for development |
