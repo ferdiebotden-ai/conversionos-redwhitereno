@@ -28,7 +28,7 @@ We're building an AI-native lead-to-quote platform for renovation contractors. U
 - [x] DEV-002: Configure Tailwind CSS v4 ✅
 - [x] DEV-003: Install and configure shadcn/ui components ✅
 - [x] DEV-004: Set up Supabase project (Canada region) ✅
-- [ ] DEV-005: Create database schema and migrations
+- [x] DEV-005: Create database schema and migrations ✅
 - [x] DEV-006: Configure environment variables and secrets ✅
 - [ ] DEV-007: Set up Vercel project and deployment
 - [x] DEV-008: Create CLAUDE.md configuration ✅
@@ -60,25 +60,28 @@ We're building an AI-native lead-to-quote platform for renovation contractors. U
   - Created server client with RLS support (src/lib/db/server.ts)
   - Created service client for admin operations (bypasses RLS)
   - Created middleware for auth session refresh and admin route protection
-  - Created placeholder database types matching PRD schema (src/types/database.ts)
+- DEV-005: Created database schema and migrations
+  - Created initial migration with leads, quote_drafts, audit_log, chat_sessions tables
+  - Added RLS policies for admin access and service role bypass
+  - Added indexes for common queries
+  - Added updated_at triggers
+  - Pushed migration to Supabase successfully
+  - Updated TypeScript types to match actual schema
 - DEV-006: Configured environment variables
   - Created .env.example template (committed)
   - Created .env.local with Supabase credentials (gitignored)
-- Created test page at /test-db for connection verification
-- Created placeholder /admin/login page for middleware testing
+- Created test pages for connection verification
 
 **Technical Notes:**
 - Using bracket notation for process.env access (TypeScript strict mode)
 - Middleware MUST be in src/middleware.ts (not project root) when using src/ directory
 - Middleware protects /admin/* routes, redirects to /admin/login
 - Next.js 16 deprecation warning: middleware → proxy pattern (works for now)
-- Database types are placeholder - regenerate after DEV-005 migrations
 - Test pages (/test-db, /api/debug-auth) should be removed before production
 
 **Next Session:**
-1. Commit DEV-004/DEV-006 changes
-2. DEV-005: Create database migrations from PRD schema
-3. DEV-007: Set up Vercel project and deployment
+1. DEV-007: Set up Vercel project and deployment
+2. Phase 1: Marketing website (DEV-009+)
 
 ---
 

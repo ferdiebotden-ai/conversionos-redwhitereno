@@ -1,8 +1,8 @@
 /**
  * Database types for Lead-to-Quote Engine v2
  *
- * These are placeholder types matching the PRD schema.
- * Regenerate from Supabase after DEV-005 migrations:
+ * These types match the schema in supabase/migrations/20260131000000_initial_schema.sql
+ * Regenerate from Supabase CLI after schema changes:
  * npx supabase gen types typescript --project-id bwvrtypzcvuojfsyiwch > src/types/database.ts
  */
 
@@ -22,172 +22,203 @@ export type Database = {
           id: string;
           created_at: string;
           updated_at: string;
-          first_name: string;
-          last_name: string;
+          status: LeadStatus;
+          name: string;
           email: string;
           phone: string | null;
           address: string | null;
-          city: string | null;
           postal_code: string | null;
-          project_type: string | null;
-          project_description: string | null;
-          timeline: string | null;
-          budget_range: string | null;
-          status: 'new' | 'contacted' | 'qualified' | 'quoted' | 'won' | 'lost';
-          source: string | null;
+          city: string;
+          province: string;
+          project_type: ProjectType | null;
+          area_sqft: number | null;
+          timeline: Timeline | null;
+          budget_band: BudgetBand | null;
+          finish_level: FinishLevel | null;
+          goals_text: string | null;
+          chat_transcript: Json | null;
+          scope_json: Json | null;
+          quote_draft_json: Json | null;
+          confidence_score: number | null;
+          ai_notes: string | null;
+          uploaded_photos: string[] | null;
+          generated_concepts: string[] | null;
+          quote_pdf_url: string | null;
+          source: string;
           utm_source: string | null;
           utm_medium: string | null;
           utm_campaign: string | null;
-          notes: string | null;
+          session_id: string | null;
+          owner_notes: string | null;
           assigned_to: string | null;
+          last_contacted_at: string | null;
+          follow_up_date: string | null;
         };
         Insert: {
           id?: string;
           created_at?: string;
           updated_at?: string;
-          first_name: string;
-          last_name: string;
+          status?: LeadStatus;
+          name: string;
           email: string;
           phone?: string | null;
           address?: string | null;
-          city?: string | null;
           postal_code?: string | null;
-          project_type?: string | null;
-          project_description?: string | null;
-          timeline?: string | null;
-          budget_range?: string | null;
-          status?: 'new' | 'contacted' | 'qualified' | 'quoted' | 'won' | 'lost';
-          source?: string | null;
+          city?: string;
+          province?: string;
+          project_type?: ProjectType | null;
+          area_sqft?: number | null;
+          timeline?: Timeline | null;
+          budget_band?: BudgetBand | null;
+          finish_level?: FinishLevel | null;
+          goals_text?: string | null;
+          chat_transcript?: Json | null;
+          scope_json?: Json | null;
+          quote_draft_json?: Json | null;
+          confidence_score?: number | null;
+          ai_notes?: string | null;
+          uploaded_photos?: string[] | null;
+          generated_concepts?: string[] | null;
+          quote_pdf_url?: string | null;
+          source?: string;
           utm_source?: string | null;
           utm_medium?: string | null;
           utm_campaign?: string | null;
-          notes?: string | null;
+          session_id?: string | null;
+          owner_notes?: string | null;
           assigned_to?: string | null;
+          last_contacted_at?: string | null;
+          follow_up_date?: string | null;
         };
         Update: {
           id?: string;
           created_at?: string;
           updated_at?: string;
-          first_name?: string;
-          last_name?: string;
+          status?: LeadStatus;
+          name?: string;
           email?: string;
           phone?: string | null;
           address?: string | null;
-          city?: string | null;
           postal_code?: string | null;
-          project_type?: string | null;
-          project_description?: string | null;
-          timeline?: string | null;
-          budget_range?: string | null;
-          status?: 'new' | 'contacted' | 'qualified' | 'quoted' | 'won' | 'lost';
-          source?: string | null;
+          city?: string;
+          province?: string;
+          project_type?: ProjectType | null;
+          area_sqft?: number | null;
+          timeline?: Timeline | null;
+          budget_band?: BudgetBand | null;
+          finish_level?: FinishLevel | null;
+          goals_text?: string | null;
+          chat_transcript?: Json | null;
+          scope_json?: Json | null;
+          quote_draft_json?: Json | null;
+          confidence_score?: number | null;
+          ai_notes?: string | null;
+          uploaded_photos?: string[] | null;
+          generated_concepts?: string[] | null;
+          quote_pdf_url?: string | null;
+          source?: string;
           utm_source?: string | null;
           utm_medium?: string | null;
           utm_campaign?: string | null;
-          notes?: string | null;
+          session_id?: string | null;
+          owner_notes?: string | null;
           assigned_to?: string | null;
+          last_contacted_at?: string | null;
+          follow_up_date?: string | null;
         };
         Relationships: [];
       };
       quote_drafts: {
         Row: {
           id: string;
+          lead_id: string;
           created_at: string;
           updated_at: string;
-          lead_id: string;
           version: number;
           line_items: Json;
-          subtotal: number;
-          hst_amount: number;
-          total: number;
-          deposit_amount: number;
-          valid_until: string;
-          notes: string | null;
-          status: 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired';
+          tier_good: Json | null;
+          tier_better: Json | null;
+          tier_best: Json | null;
+          assumptions: string[] | null;
+          exclusions: string[] | null;
+          special_notes: string | null;
+          recommended_next_step: string | null;
+          subtotal: number | null;
+          contingency_percent: number;
+          contingency_amount: number | null;
+          hst_percent: number;
+          hst_amount: number | null;
+          total: number | null;
+          deposit_percent: number;
+          deposit_required: number | null;
+          validity_days: number;
+          expires_at: string | null;
           sent_at: string | null;
-          accepted_at: string | null;
+          sent_to_email: string | null;
+          opened_at: string | null;
+          pdf_url: string | null;
         };
         Insert: {
           id?: string;
+          lead_id: string;
           created_at?: string;
           updated_at?: string;
-          lead_id: string;
           version?: number;
           line_items: Json;
-          subtotal: number;
-          hst_amount: number;
-          total: number;
-          deposit_amount: number;
-          valid_until: string;
-          notes?: string | null;
-          status?: 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired';
+          tier_good?: Json | null;
+          tier_better?: Json | null;
+          tier_best?: Json | null;
+          assumptions?: string[] | null;
+          exclusions?: string[] | null;
+          special_notes?: string | null;
+          recommended_next_step?: string | null;
+          subtotal?: number | null;
+          contingency_percent?: number;
+          contingency_amount?: number | null;
+          hst_percent?: number;
+          hst_amount?: number | null;
+          total?: number | null;
+          deposit_percent?: number;
+          deposit_required?: number | null;
+          validity_days?: number;
+          expires_at?: string | null;
           sent_at?: string | null;
-          accepted_at?: string | null;
+          sent_to_email?: string | null;
+          opened_at?: string | null;
+          pdf_url?: string | null;
         };
         Update: {
           id?: string;
+          lead_id?: string;
           created_at?: string;
           updated_at?: string;
-          lead_id?: string;
           version?: number;
           line_items?: Json;
-          subtotal?: number;
-          hst_amount?: number;
-          total?: number;
-          deposit_amount?: number;
-          valid_until?: string;
-          notes?: string | null;
-          status?: 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired';
+          tier_good?: Json | null;
+          tier_better?: Json | null;
+          tier_best?: Json | null;
+          assumptions?: string[] | null;
+          exclusions?: string[] | null;
+          special_notes?: string | null;
+          recommended_next_step?: string | null;
+          subtotal?: number | null;
+          contingency_percent?: number;
+          contingency_amount?: number | null;
+          hst_percent?: number;
+          hst_amount?: number | null;
+          total?: number | null;
+          deposit_percent?: number;
+          deposit_required?: number | null;
+          validity_days?: number;
+          expires_at?: string | null;
           sent_at?: string | null;
-          accepted_at?: string | null;
+          sent_to_email?: string | null;
+          opened_at?: string | null;
+          pdf_url?: string | null;
         };
         Relationships: [
           {
             foreignKeyName: 'quote_drafts_lead_id_fkey';
-            columns: ['lead_id'];
-            isOneToOne: false;
-            referencedRelation: 'leads';
-            referencedColumns: ['id'];
-          }
-        ];
-      };
-      chat_sessions: {
-        Row: {
-          id: string;
-          created_at: string;
-          updated_at: string;
-          lead_id: string | null;
-          session_token: string;
-          messages: Json;
-          extracted_data: Json | null;
-          status: 'active' | 'completed' | 'abandoned';
-          completed_at: string | null;
-        };
-        Insert: {
-          id?: string;
-          created_at?: string;
-          updated_at?: string;
-          lead_id?: string | null;
-          session_token: string;
-          messages?: Json;
-          extracted_data?: Json | null;
-          status?: 'active' | 'completed' | 'abandoned';
-          completed_at?: string | null;
-        };
-        Update: {
-          id?: string;
-          created_at?: string;
-          updated_at?: string;
-          lead_id?: string | null;
-          session_token?: string;
-          messages?: Json;
-          extracted_data?: Json | null;
-          status?: 'active' | 'completed' | 'abandoned';
-          completed_at?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'chat_sessions_lead_id_fkey';
             columns: ['lead_id'];
             isOneToOne: false;
             referencedRelation: 'leads';
@@ -200,11 +231,10 @@ export type Database = {
           id: string;
           created_at: string;
           user_id: string | null;
+          lead_id: string | null;
           action: string;
-          table_name: string;
-          record_id: string;
-          old_data: Json | null;
-          new_data: Json | null;
+          old_values: Json | null;
+          new_values: Json | null;
           ip_address: string | null;
           user_agent: string | null;
         };
@@ -212,11 +242,10 @@ export type Database = {
           id?: string;
           created_at?: string;
           user_id?: string | null;
+          lead_id?: string | null;
           action: string;
-          table_name: string;
-          record_id: string;
-          old_data?: Json | null;
-          new_data?: Json | null;
+          old_values?: Json | null;
+          new_values?: Json | null;
           ip_address?: string | null;
           user_agent?: string | null;
         };
@@ -224,13 +253,51 @@ export type Database = {
           id?: string;
           created_at?: string;
           user_id?: string | null;
+          lead_id?: string | null;
           action?: string;
-          table_name?: string;
-          record_id?: string;
-          old_data?: Json | null;
-          new_data?: Json | null;
+          old_values?: Json | null;
+          new_values?: Json | null;
           ip_address?: string | null;
           user_agent?: string | null;
+        };
+        Relationships: [];
+      };
+      chat_sessions: {
+        Row: {
+          id: string;
+          created_at: string;
+          updated_at: string;
+          expires_at: string;
+          email: string | null;
+          messages: Json;
+          extracted_data: Json | null;
+          state: ChatSessionState;
+          device_type: string | null;
+          started_from: string | null;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+          expires_at?: string;
+          email?: string | null;
+          messages?: Json;
+          extracted_data?: Json | null;
+          state?: ChatSessionState;
+          device_type?: string | null;
+          started_from?: string | null;
+        };
+        Update: {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+          expires_at?: string;
+          email?: string | null;
+          messages?: Json;
+          extracted_data?: Json | null;
+          state?: ChatSessionState;
+          device_type?: string | null;
+          started_from?: string | null;
         };
         Relationships: [];
       };
@@ -242,15 +309,21 @@ export type Database = {
       [_ in never]: never;
     };
     Enums: {
-      lead_status: 'new' | 'contacted' | 'qualified' | 'quoted' | 'won' | 'lost';
-      quote_status: 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired';
-      chat_session_status: 'active' | 'completed' | 'abandoned';
+      [_ in never]: never;
     };
     CompositeTypes: {
       [_ in never]: never;
     };
   };
 };
+
+// Enum types
+export type LeadStatus = 'new' | 'draft_ready' | 'needs_clarification' | 'sent' | 'won' | 'lost';
+export type ProjectType = 'kitchen' | 'bathroom' | 'basement' | 'flooring' | 'painting' | 'exterior' | 'other';
+export type Timeline = 'asap' | '1_3_months' | '3_6_months' | '6_plus_months' | 'just_exploring';
+export type BudgetBand = 'under_15k' | '15k_25k' | '25k_40k' | '40k_60k' | '60k_plus' | 'not_sure';
+export type FinishLevel = 'economy' | 'standard' | 'premium';
+export type ChatSessionState = 'active' | 'completed' | 'expired' | 'abandoned';
 
 // Helper types for convenience
 export type Lead = Database['public']['Tables']['leads']['Row'];
@@ -268,6 +341,12 @@ export type ChatSessionUpdate = Database['public']['Tables']['chat_sessions']['U
 export type AuditLog = Database['public']['Tables']['audit_log']['Row'];
 export type AuditLogInsert = Database['public']['Tables']['audit_log']['Insert'];
 
-export type LeadStatus = Database['public']['Enums']['lead_status'];
-export type QuoteStatus = Database['public']['Enums']['quote_status'];
-export type ChatSessionStatus = Database['public']['Enums']['chat_session_status'];
+// Quote line item type (used in quote_drafts.line_items)
+export interface QuoteLineItem {
+  description: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  unit_price: number;
+  total: number;
+}
