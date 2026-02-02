@@ -9,8 +9,8 @@ test.describe('Quote Happy Path', () => {
   test('navigates from home to quote page', async ({ page }) => {
     await page.goto('/');
 
-    // Check home page loaded
-    await expect(page.getByRole('heading', { name: /Transform Your Home/i })).toBeVisible();
+    // Check home page loaded - use h1 specifically to avoid matching h2
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 
     // Click Get a Free Quote button
     await page.getByRole('link', { name: /Get a Free Quote/i }).first().click();

@@ -92,12 +92,14 @@ export async function generateVisualizationConcept(
     // we'll need to use the Google AI client directly for actual image generation
     // This function signature is ready for when that's available
 
-    console.log('Visualization prompt sent:', variationPrompt.slice(0, 200));
-    console.log('Model response:', result.text?.slice(0, 200));
+    // Placeholder: Image generation not yet implemented
+    // variationPrompt and result.text are available for future use
+    void variationPrompt;
+    void result;
 
     return null;
-  } catch (error) {
-    console.error('Failed to generate visualization concept:', error);
+  } catch {
+    // Visualization generation failed - return null to use placeholder
     return null;
   }
 }

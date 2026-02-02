@@ -34,16 +34,16 @@ test.describe('Admin Login Page', () => {
   });
 
   test('login form has required validation', async ({ page }) => {
-    // Click sign in without entering credentials
-    await page.getByRole('button', { name: /Sign in/i }).click();
-
-    // Form should show validation (HTML5 required attribute)
-    // The form won't submit, so we're still on login page
-    await expect(page).toHaveURL('/admin/login');
-
-    // Email field should be focused or show error
+    // The login form has required fields - verify they exist
     const emailInput = page.getByLabel(/Email/i);
-    await expect(emailInput).toBeVisible();
+    const passwordInput = page.getByLabel(/Password/i);
+
+    // Verify required attributes are present
+    await expect(emailInput).toHaveAttribute('required', '');
+    await expect(passwordInput).toHaveAttribute('required', '');
+
+    // Still on login page
+    await expect(page).toHaveURL('/admin/login');
   });
 
   test('shows password visibility toggle if present', async ({ page }) => {
@@ -59,8 +59,9 @@ test.describe('Admin Protected Routes', () => {
     await page.goto('/admin');
 
     // Should redirect to login or show login page
-    // Check we're either on login page or get redirected
-    await expect(page.getByText(/Sign in/i).or(page.getByLabel(/Email/i))).toBeVisible({ timeout: 5000 });
+    // Wait for navigation and check URL
+    await page.waitForURL(/\/admin\/login/, { timeout: 5000 });
+    await expect(page.getByRole('heading', { name: /Sign in/i })).toBeVisible({ timeout: 5000 });
   });
 
   test('admin leads page redirects to login when not authenticated', async ({ page }) => {
@@ -68,7 +69,8 @@ test.describe('Admin Protected Routes', () => {
     await page.goto('/admin/leads');
 
     // Should redirect to login
-    await expect(page.getByText(/Sign in/i).or(page.getByLabel(/Email/i))).toBeVisible({ timeout: 5000 });
+    await page.waitForURL(/\/admin\/login/, { timeout: 5000 });
+    await expect(page.getByRole('heading', { name: /Sign in/i })).toBeVisible({ timeout: 5000 });
   });
 });
 

@@ -69,8 +69,9 @@ export function EmailCaptureModal({
 
       // TODO: If marketing opt-in, add to email list via Resend
       if (marketingOptIn) {
-        console.log('Marketing opt-in:', email);
         // Future: Send to email marketing list
+        // For now, marketingOptIn preference is stored with visualization
+        void email; // Email is sent in the API request above
       }
 
       onEmailSubmitted();

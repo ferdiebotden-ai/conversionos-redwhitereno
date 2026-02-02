@@ -6,8 +6,9 @@
  */
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { createClient } from '@/lib/db/client';
 import {
   LayoutDashboard,
   Users,
@@ -31,6 +32,7 @@ interface SidebarProps {
 
 export function Sidebar({ className, onNavClick }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
 
   const isActive = (href: string) => {
     if (href === '/admin') {
@@ -40,8 +42,9 @@ export function Sidebar({ className, onNavClick }: SidebarProps) {
   };
 
   const handleLogout = async () => {
-    // TODO: Implement logout with Supabase
-    window.location.href = '/admin/login';
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/admin/login');
   };
 
   return (

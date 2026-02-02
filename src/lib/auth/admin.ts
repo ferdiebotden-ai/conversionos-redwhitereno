@@ -4,10 +4,22 @@
  */
 
 import { createClient as createServerClient } from '@/lib/db/server';
+import type { User } from '@supabase/supabase-js';
+
+/**
+ * Check if a user has admin role in their metadata
+ */
+export function isAdminRole(user: User | null): boolean {
+  if (!user) return false;
+  // Cast to access role property - Supabase User type doesn't include custom metadata
+  const metadata = user.app_metadata as Record<string, unknown> | undefined;
+  return metadata?.['role'] === 'admin';
+}
 
 /**
  * Check if the current user is authenticated as admin
  * Call this in Server Components or Route Handlers
+ * Returns user only if they have admin role
  */
 export async function getAdminUser() {
   const supabase = await createServerClient();
@@ -18,9 +30,10 @@ export async function getAdminUser() {
     return null;
   }
 
-  // For now, any authenticated user is considered admin
-  // TODO: Add role checking via user metadata or a separate admins table
-  // Example: Check user.app_metadata.role === 'admin'
+  // Verify admin role via app_metadata
+  if (!isAdminRole(user)) {
+    return null;
+  }
 
   return user;
 }

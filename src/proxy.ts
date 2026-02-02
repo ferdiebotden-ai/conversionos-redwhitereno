@@ -1,7 +1,12 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-export async function middleware(request: NextRequest) {
+/**
+ * Proxy (formerly Middleware)
+ * Handles authentication and admin route protection
+ * Runs on Node.js runtime before routes are rendered
+ */
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   });
@@ -35,7 +40,7 @@ export async function middleware(request: NextRequest) {
     error,
   } = await supabase.auth.getUser();
 
-  // Protect admin routes - redirect to login if not authenticated
+  // Protect admin routes - redirect to login if not authenticated or not admin
   if (request.nextUrl.pathname.startsWith('/admin')) {
     // Allow access to login page
     if (request.nextUrl.pathname === '/admin/login') {
@@ -46,6 +51,16 @@ export async function middleware(request: NextRequest) {
     if (!user || error) {
       const url = request.nextUrl.clone();
       url.pathname = '/admin/login';
+      return NextResponse.redirect(url);
+    }
+
+    // Verify admin role via app_metadata
+    const metadata = user.app_metadata as Record<string, unknown> | undefined;
+    const isAdmin = metadata?.['role'] === 'admin';
+    if (!isAdmin) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/admin/login';
+      url.searchParams.set('error', 'unauthorized');
       return NextResponse.redirect(url);
     }
   }
