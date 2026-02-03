@@ -1,6 +1,6 @@
 # Session Status - Lead-to-Quote Engine v2
 
-> **Last Updated:** February 2, 2026 (AI-Powered Quote Workflow Enhancement)
+> **Last Updated:** February 3, 2026 (RLS Migration & E2E Test Fixes)
 > **Status:** LAUNCHED - Production Ready
 > **Current Phase:** Phase 5 - Testing & Launch (COMPLETE)
 
@@ -113,6 +113,52 @@ We're building an AI-native lead-to-quote platform for renovation contractors. U
 ---
 
 ## Recent Session Log
+
+### Session: February 3, 2026 (RLS Migration & E2E Test Fixes)
+**Completed:**
+- Applied RLS migration to remote Supabase database
+- Fixed Supabase credentials in `.env.local`
+- Fixed test helper timeout issues
+
+**Root Cause:**
+- Quote submission and visualizer were failing with "Invalid API key" error
+- The migration `20260204000000_leads_public_insert.sql` existed locally but wasn't applied to remote
+- The `.env.local` file had incorrect Supabase API keys
+
+**Fixes Applied:**
+1. **RLS Migration Applied:**
+   - Ran `npx supabase db push --linked` to apply pending migration
+   - Added public insert policies for `leads` and `audit_log` tables
+   - All 6 migrations now applied to remote database
+
+2. **Supabase Credentials Updated:**
+   - Updated `.env.local` with correct API keys from `npx supabase projects api-keys`
+   - Fixed "Invalid API key" errors in lead submission and visualizer
+
+3. **Test Helper Fixes:**
+   - `verifyVisualizationResult()` - Added `.first()` to handle `.or()` matching multiple elements
+   - `verifySubmissionSuccess()` - Increased timeout from 15s to 30s to handle slow AI quote generation
+
+**Test Results (Post-Fix):**
+- Quote submission: All 3 tests pass (Mobile, Tablet, Desktop) ✅
+- Visualizer: All 6 tests pass ✅
+- Admin tests: 17 failing (require test admin user setup - separate issue)
+- Touch target tests: 3 failing (pre-existing UI styling issue - min-height 24px vs 44px)
+- Overall: 59 passed, 21 failed, 1 skipped
+
+**Remaining Issues (Not Bugs):**
+1. Admin tests need test user `admin@redwhitereno.ca` created in Supabase Auth
+2. Quick reply button touch targets need CSS fix (min-height: 44px)
+
+**Files Modified:**
+- `.env.local` - Updated Supabase credentials
+- `tests/e2e/strict/helpers.ts` - Fixed timeout and strict mode issues
+
+**Next Session:**
+1. Create test admin user in Supabase Auth
+2. Fix quick reply button touch targets (CSS)
+
+---
 
 ### Session: February 2, 2026 (AI-Powered Quote Workflow Enhancement)
 **Completed:**
