@@ -1,35 +1,35 @@
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
-import { ChefHat, Bath, Sofa, Layers } from "lucide-react"
+import { ChefHat, Bath, Sofa, TreeDeciduous } from "lucide-react"
 
 const services = [
   {
     slug: "kitchen",
-    title: "Kitchen Renovation",
+    title: "Kitchens",
     description:
-      "Transform your kitchen into a modern, functional space. From cabinet refacing to complete remodels.",
+      "The heart of your home. Plumbing, electrical, lighting, flooring, cabinets, countertops, and more.",
     icon: ChefHat,
   },
   {
     slug: "bathroom",
-    title: "Bathroom Renovation",
+    title: "Bathrooms",
     description:
-      "Create your personal spa retreat. Showers, tubs, vanities, and complete bathroom transformations.",
+      "Transform your functional space into something much more. Plumbing, tile, vanities, and complete renovations.",
     icon: Bath,
   },
   {
     slug: "basement",
-    title: "Basement Finishing",
+    title: "Basements",
     description:
-      "Unlock hidden living space. Convert your basement into a family room, home office, or rental suite.",
+      "Transform your perspective on an entire floor of your home. Insulation, drywall, flooring, and more.",
     icon: Sofa,
   },
   {
-    slug: "flooring",
-    title: "Flooring",
+    slug: "outdoor",
+    title: "Outdoor",
     description:
-      "Hardwood, laminate, tile, or vinyl. Professional installation for any room in your home.",
-    icon: Layers,
+      "Increase your curb appeal. Decks, fences, porches, concrete driveways and sidewalks, painting.",
+    icon: TreeDeciduous,
   },
 ]
 

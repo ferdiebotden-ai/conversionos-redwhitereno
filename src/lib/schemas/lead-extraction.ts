@@ -66,6 +66,28 @@ export const EstimatedCostRangeSchema = z.object({
 });
 
 /**
+ * Property type enum for Ontario-specific fields
+ */
+export const PropertyTypeSchema = z.enum([
+  'detached',
+  'semi',
+  'townhouse',
+  'condo',
+  'other',
+]);
+
+/**
+ * Property age enum
+ */
+export const PropertyAgeSchema = z.enum([
+  'new',
+  '0-10',
+  '10-25',
+  '25-50',
+  '50+',
+]);
+
+/**
  * Contact schema
  */
 export const ExtractedContactSchema = z.object({
@@ -74,6 +96,20 @@ export const ExtractedContactSchema = z.object({
   phone: z.string().nullable(),
   address: z.string().nullable(),
   postalCode: z.string().nullable(),
+});
+
+/**
+ * Ontario-specific property fields
+ */
+export const OntarioPropertyFieldsSchema = z.object({
+  propertyType: PropertyTypeSchema.optional(),
+  propertyAge: PropertyAgeSchema.optional(),
+  isOwner: z.boolean().optional(),
+  hasHOA: z.boolean().optional(),
+  hoaRestrictions: z.string().optional(),
+  permitAware: z.boolean().optional(),
+  preferredStartDate: z.string().optional(),
+  accessNotes: z.string().optional(),
 });
 
 /**
@@ -91,9 +127,12 @@ export const LeadExtractionSchema = z.object({
   estimatedCostRange: EstimatedCostRangeSchema.nullable(),
   uncertainties: z.array(z.string()),
   contact: ExtractedContactSchema,
+  // Ontario-specific fields
+  property: OntarioPropertyFieldsSchema.optional(),
 });
 
 export type LeadExtraction = z.infer<typeof LeadExtractionSchema>;
+export type OntarioPropertyFields = z.infer<typeof OntarioPropertyFieldsSchema>;
 
 /**
  * Partial lead extraction for incomplete conversations

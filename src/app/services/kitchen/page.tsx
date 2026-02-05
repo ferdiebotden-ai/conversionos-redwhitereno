@@ -75,9 +75,9 @@ export default function KitchenPage() {
             </h1>
           </div>
           <p className="mt-4 max-w-2xl text-lg text-muted-foreground md:mt-6">
-            The kitchen is the heart of your home. Whether you&apos;re dreaming
-            of a chef&apos;s kitchen or a cozy gathering space, we&apos;ll bring
-            your vision to life with quality materials and expert craftsmanship.
+            The kitchen. For many, the heart of their home. A place to gather,
+            to visit, to unwind — and, of course, to prepare and eat your
+            favourite meals. Let us make your kitchen the place to be.
           </p>
         </div>
       </section>

@@ -75,36 +75,36 @@ export default function ContactPage() {
                   </h3>
                   <ul className="mt-4 space-y-4">
                     <li>
-                      <a
-                        href="tel:+15195551234"
-                        className="flex items-start gap-3 text-muted-foreground transition-colors hover:text-primary"
-                      >
+                      <div className="flex items-start gap-3 text-muted-foreground">
                         <Phone className="mt-0.5 size-5 shrink-0 text-primary" />
                         <span>
-                          <strong className="block text-foreground">Phone</strong>
-                          (519) 555-1234
+                          <strong className="block text-foreground">General Inquiries</strong>
+                          Clodagh Moss, Business Manager
+                          <br />
+                          <a href="tel:519-301-9140" className="hover:text-primary">519-301-9140</a>
+                          <br />
+                          <a href="mailto:clodagh@redwhitereno.com" className="hover:text-primary">clodagh@redwhitereno.com</a>
                         </span>
-                      </a>
+                      </div>
                     </li>
                     <li>
-                      <a
-                        href="mailto:info@redwhitereno.ca"
-                        className="flex items-start gap-3 text-muted-foreground transition-colors hover:text-primary"
-                      >
-                        <Mail className="mt-0.5 size-5 shrink-0 text-primary" />
+                      <div className="flex items-start gap-3 text-muted-foreground">
+                        <Phone className="mt-0.5 size-5 shrink-0 text-primary" />
                         <span>
-                          <strong className="block text-foreground">Email</strong>
-                          info@redwhitereno.ca
+                          <strong className="block text-foreground">Job Site Contact</strong>
+                          Michel Faigaux, Owner/Operator
+                          <br />
+                          <a href="tel:226-929-1519" className="hover:text-primary">226-929-1519</a>
+                          <br />
+                          <a href="mailto:michel@redwhitereno.com" className="hover:text-primary">michel@redwhitereno.com</a>
                         </span>
-                      </a>
+                      </div>
                     </li>
                     <li className="flex items-start gap-3 text-muted-foreground">
                       <MapPin className="mt-0.5 size-5 shrink-0 text-primary" />
                       <span>
-                        <strong className="block text-foreground">Address</strong>
-                        123 Ontario Street
-                        <br />
-                        Stratford, ON N5A 3H1
+                        <strong className="block text-foreground">Location</strong>
+                        Stratford, Ontario, Canada
                       </span>
                     </li>
                   </ul>

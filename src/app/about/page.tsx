@@ -3,7 +3,6 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
-  Award,
   Shield,
   Users,
   Heart,
@@ -14,7 +13,7 @@ import {
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "Learn about Red White Reno - Stratford's trusted renovation contractor. Over 10 years of experience transforming homes in Perth County.",
+    "Learn about Red White Reno - Stratford's trusted renovation contractor. Quality craftsmanship for residential and commercial projects in Perth County.",
 }
 
 const values = [
@@ -38,11 +37,17 @@ const values = [
   },
 ]
 
-const certifications = [
-  "Licensed Contractor - Ontario",
-  "WSIB Coverage",
-  "Fully Insured - $2M Liability",
-  "Tarion Warranty Corporation Member",
+const teamMembers = [
+  {
+    name: "Michel Faigaux",
+    role: "Owner/Operator",
+    description: "Job site contact and lead craftsman",
+  },
+  {
+    name: "Clodagh Moss",
+    role: "Business Manager",
+    description: "General inquiries and project coordination",
+  },
 ]
 
 const serviceAreas = [
@@ -75,49 +80,49 @@ export default function AboutPage() {
         <div className="container mx-auto">
           <div className="mx-auto max-w-2xl text-center">
             <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-              Building Trust, One Home at a Time
+              Building Trust With Quality Work
             </h1>
             <p className="mt-4 text-lg text-muted-foreground">
-              For over a decade, Red White Reno has been transforming homes in
-              Stratford and Perth County. We combine traditional craftsmanship
-              with modern innovation to deliver exceptional results.
+              Red White Reno transforms homes in Stratford and Perth County
+              with quality craftsmanship and modern building techniques.
+              Taking care of our clients is what we do best.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Our Story */}
+      {/* What We Do */}
       <section className="px-4 py-12 md:py-16">
         <div className="container mx-auto">
           <div className="grid gap-8 md:grid-cols-2 md:items-center">
             <div>
               <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                Our Story
+                What We Do
               </h2>
               <div className="mt-4 space-y-4 text-muted-foreground">
                 <p>
-                  Red White Reno started in 2015 with a simple mission: bring
-                  quality renovation services to Stratford homeowners without
-                  the big-city price tag. What began as a one-person operation
-                  has grown into a trusted team of skilled craftsmen, designers,
-                  and project managers.
+                  Our past projects include both commercial and residential
+                  spaces. We focus on quality craftsmanship as well as modern
+                  building techniques. A clean, courteous, efficient worksite
+                  is a must, and taking care of our clients is what we do best.
                 </p>
                 <p>
-                  We&apos;ve completed over 500 projects — from kitchen refreshes to
-                  complete home transformations. Our reputation is built on
-                  honest communication, quality workmanship, and treating every
-                  home as if it were our own.
+                  We offer an end-to-end client experience that includes
+                  seamless communication, budgeting, on-site organization, and
+                  solid, quality handiwork every time. From the design phase to
+                  the last touch-ups, we&apos;ll be there working hard to finish on
+                  time and on budget.
                 </p>
                 <p>
-                  In 2024, we embraced AI technology to give our clients
-                  something unique: the ability to visualize their renovation
-                  before a single nail is hammered. It&apos;s innovation rooted in
-                  our commitment to exceeding expectations.
+                  We have worked with homeowners and designers to produce work
+                  we think you&apos;ll love. Call us today and bring our project
+                  management skills and extensive construction experience to
+                  your next project.
                 </p>
               </div>
             </div>
             <div className="aspect-[4/3] rounded-lg bg-muted flex items-center justify-center">
-              <p className="text-muted-foreground">Team photo coming soon</p>
+              <p className="text-muted-foreground">Project photos coming soon</p>
             </div>
           </div>
         </div>
@@ -183,13 +188,8 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { name: "Owner / Lead Contractor", role: "Founder" },
-              { name: "Project Manager", role: "Operations" },
-              { name: "Lead Carpenter", role: "Construction" },
-              { name: "Design Consultant", role: "Design" },
-            ].map((member) => (
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 max-w-2xl mx-auto">
+            {teamMembers.map((member) => (
               <Card key={member.name}>
                 <CardContent className="p-6 text-center">
                   <div className="mx-auto size-24 rounded-full bg-muted flex items-center justify-center">
@@ -198,7 +198,8 @@ export default function AboutPage() {
                   <p className="mt-4 font-semibold text-foreground">
                     {member.name}
                   </p>
-                  <p className="text-sm text-muted-foreground">{member.role}</p>
+                  <p className="text-sm text-primary">{member.role}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{member.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -206,50 +207,29 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Credentials */}
+      {/* Service Area */}
       <section className="px-4 py-12 md:py-16">
         <div className="container mx-auto">
-          <div className="grid gap-8 md:grid-cols-2">
-            {/* Certifications */}
-            <div>
-              <div className="flex items-center gap-3">
-                <Award className="size-6 text-primary" />
-                <h2 className="text-xl font-bold tracking-tight text-foreground">
-                  Licenses & Certifications
-                </h2>
-              </div>
-              <ul className="mt-4 space-y-3">
-                {certifications.map((cert) => (
-                  <li key={cert} className="flex items-center gap-3">
-                    <div className="size-2 rounded-full bg-primary" />
-                    <span className="text-muted-foreground">{cert}</span>
-                  </li>
-                ))}
-              </ul>
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="flex items-center justify-center gap-3">
+              <MapPin className="size-6 text-primary" />
+              <h2 className="text-xl font-bold tracking-tight text-foreground">
+                Service Area
+              </h2>
             </div>
-
-            {/* Service Area */}
-            <div>
-              <div className="flex items-center gap-3">
-                <MapPin className="size-6 text-primary" />
-                <h2 className="text-xl font-bold tracking-tight text-foreground">
-                  Service Area
-                </h2>
-              </div>
-              <p className="mt-4 text-muted-foreground">
-                We proudly serve homeowners throughout Perth County and
-                surrounding areas:
-              </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {serviceAreas.map((area) => (
-                  <span
-                    key={area}
-                    className="rounded-full bg-muted px-3 py-1 text-sm text-foreground"
-                  >
-                    {area}
-                  </span>
-                ))}
-              </div>
+            <p className="mt-4 text-muted-foreground">
+              We proudly serve homeowners and businesses throughout Perth County
+              and surrounding areas:
+            </p>
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              {serviceAreas.map((area) => (
+                <span
+                  key={area}
+                  className="rounded-full bg-muted px-3 py-1 text-sm text-foreground"
+                >
+                  {area}
+                </span>
+              ))}
             </div>
           </div>
         </div>

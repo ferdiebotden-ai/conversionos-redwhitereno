@@ -37,6 +37,7 @@ export function ConceptThumbnails({
               ? 'border-primary ring-2 ring-primary ring-offset-2'
               : 'border-border hover:border-primary/50'
           )}
+          data-testid="concept-thumbnail"
         >
           <img
             src={concept.imageUrl}

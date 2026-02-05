@@ -2,69 +2,44 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Check, Layers } from "lucide-react"
+import { Check, TreeDeciduous } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Flooring Installation",
+  title: "Outdoor Renovation",
   description:
-    "Professional flooring installation by Red White Reno. Hardwood, laminate, tile, and luxury vinyl flooring in Stratford, Ontario.",
+    "Transform your outdoor living space with Red White Reno. Decks, fences, porches, driveways, and exterior painting in Stratford, Ontario.",
 }
 
 const features = [
-  "Hardwood floor installation",
-  "Engineered hardwood options",
-  "Laminate flooring",
-  "Luxury vinyl plank (LVP)",
-  "Ceramic and porcelain tile",
-  "Natural stone flooring",
-  "Floor removal and disposal",
-  "Subfloor preparation and repair",
-  "Baseboard and trim installation",
-  "Heated floor systems",
+  "Deck building and repair",
+  "Fence installation and repair",
+  "Porch repair and rebuilding",
+  "Concrete sidewalk repair",
+  "Driveway repair and replacement",
+  "Exterior painting",
+  "Curb appeal improvements",
+  "Outdoor living spaces",
 ]
 
 const packages = [
   {
-    name: "Single Room",
+    name: "Repair & Refresh",
     starting: "2,500",
-    description: "One room up to 200 sq ft",
+    description: "Deck/fence repairs, painting, minor fixes",
   },
   {
-    name: "Main Floor",
+    name: "New Build",
     starting: "8,000",
-    description: "Living areas up to 800 sq ft",
+    description: "New deck, fence, or porch construction",
   },
   {
-    name: "Whole Home",
+    name: "Complete Exterior",
     starting: "15,000",
-    description: "Complete home flooring solution",
+    description: "Multiple outdoor projects and improvements",
   },
 ]
 
-const flooringTypes = [
-  {
-    name: "Hardwood",
-    description: "Classic beauty and lasting value. Oak, maple, walnut, and more.",
-    priceRange: "$8-15/sq ft installed",
-  },
-  {
-    name: "Engineered Hardwood",
-    description: "Real wood veneer with enhanced stability. Great for any level.",
-    priceRange: "$7-12/sq ft installed",
-  },
-  {
-    name: "Laminate",
-    description: "Affordable durability with realistic wood and stone looks.",
-    priceRange: "$5-8/sq ft installed",
-  },
-  {
-    name: "Luxury Vinyl (LVP)",
-    description: "Waterproof, durable, and versatile. Perfect for any room.",
-    priceRange: "$6-10/sq ft installed",
-  },
-]
-
-export default function FlooringPage() {
+export default function OutdoorPage() {
   return (
     <div className="flex flex-col">
       {/* Breadcrumb */}
@@ -82,7 +57,7 @@ export default function FlooringPage() {
             </Link>
           </li>
           <li>/</li>
-          <li className="text-foreground">Flooring</li>
+          <li className="text-foreground">Outdoor</li>
         </ol>
       </nav>
 
@@ -91,17 +66,16 @@ export default function FlooringPage() {
         <div className="container mx-auto">
           <div className="flex items-center justify-center gap-3 md:justify-start">
             <div className="flex size-12 items-center justify-center rounded-lg bg-primary/10">
-              <Layers className="size-6 text-primary" />
+              <TreeDeciduous className="size-6 text-primary" />
             </div>
             <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              Flooring Installation
+              Outdoor Renovation
             </h1>
           </div>
           <p className="mt-4 max-w-2xl text-lg text-muted-foreground md:mt-6">
-            New flooring transforms the entire look and feel of your home.
-            Whether you prefer the warmth of hardwood, the practicality of
-            laminate, or the versatility of luxury vinyl, we deliver
-            professional installation with flawless results.
+            We don&apos;t only renovate the inside of your home. We can transform
+            your outdoor living space as well. Increase your home&apos;s curb
+            appeal and create your own personal getaway right outside your door.
           </p>
         </div>
       </section>
@@ -110,7 +84,7 @@ export default function FlooringPage() {
       <section className="px-4 py-8">
         <div className="container mx-auto">
           <div className="aspect-[21/9] rounded-lg bg-muted flex items-center justify-center">
-            <p className="text-muted-foreground">Flooring project gallery coming soon</p>
+            <p className="text-muted-foreground">Outdoor project gallery coming soon</p>
           </div>
         </div>
       </section>
@@ -119,11 +93,11 @@ export default function FlooringPage() {
       <section className="px-4 py-12">
         <div className="container mx-auto">
           <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            What&apos;s Included
+            What We Do
           </h2>
           <p className="mt-2 text-muted-foreground">
-            Our flooring services include everything from removal to the
-            finishing touches.
+            From deck building to driveway repair, we handle all your outdoor
+            renovation needs.
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -139,33 +113,62 @@ export default function FlooringPage() {
         </div>
       </section>
 
-      {/* Flooring Types */}
+      {/* Service Details */}
       <section className="border-t border-border bg-muted/30 px-4 py-12 md:py-16">
         <div className="container mx-auto">
           <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            Flooring Options
+            Our Outdoor Services
           </h2>
-          <p className="mt-2 text-muted-foreground">
-            We work with all major flooring types to match your style and
-            budget.
-          </p>
 
           <div className="mt-8 grid gap-6 md:grid-cols-2">
-            {flooringTypes.map((type) => (
-              <Card key={type.name}>
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-foreground">
-                    {type.name}
-                  </h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {type.description}
-                  </p>
-                  <p className="mt-3 text-sm font-medium text-primary">
-                    {type.priceRange}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-foreground">
+                  Decks & Porches
+                </h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Whether you want to add a new deck or repair your existing one,
+                  we&apos;ve got you covered. Does your porch need repair — or maybe
+                  a complete rebuild? We can help with that too.
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-foreground">
+                  Fences
+                </h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Are your fences in need of help? We handle fence installation
+                  and repairs to give your property the privacy and security it
+                  deserves.
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-foreground">
+                  Concrete Work
+                </h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Has your concrete sidewalk or driveway seen better days? We can
+                  fix that. Restore your home&apos;s curb appeal with professional
+                  concrete repair and replacement.
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-foreground">
+                  Exterior Painting
+                </h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  A fresh coat of paint can transform your home&apos;s exterior.
+                  We handle all exterior painting projects to protect and
+                  beautify your property.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
@@ -174,10 +177,11 @@ export default function FlooringPage() {
       <section className="px-4 py-12 md:py-16">
         <div className="container mx-auto">
           <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            Project Pricing Guide
+            Pricing Guide
           </h2>
           <p className="mt-2 text-muted-foreground">
-            These starting prices include standard installation with materials.
+            Every project is unique. These starting prices give you a general
+            idea of investment levels.
           </p>
 
           <div className="mt-8 grid gap-6 md:grid-cols-3">
@@ -206,8 +210,8 @@ export default function FlooringPage() {
           </div>
 
           <p className="mt-6 text-sm text-muted-foreground">
-            * Prices vary based on flooring material, subfloor condition, and
-            room complexity. Get a personalized quote for your specific project.
+            * Prices vary based on scope, materials, and project complexity. Get
+            a personalized quote for your specific project.
           </p>
         </div>
       </section>
@@ -216,16 +220,16 @@ export default function FlooringPage() {
       <section className="border-t border-border bg-muted/30 px-4 py-12 md:py-16">
         <div className="container mx-auto text-center">
           <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Ready for New Floors?
+            Ready to Transform Your Outdoor Space?
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
             Get an instant quote to understand your investment, or contact us
-            to discuss your flooring options.
+            to discuss your outdoor renovation needs.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Button asChild size="lg" className="h-12 w-full px-8 sm:w-auto">
-              <Link href="/estimate?service=flooring">
-                Get Flooring Quote
+              <Link href="/estimate?service=outdoor">
+                Get Outdoor Quote
               </Link>
             </Button>
             <Button
@@ -234,7 +238,7 @@ export default function FlooringPage() {
               size="lg"
               className="h-12 w-full px-8 sm:w-auto"
             >
-              <Link href="/contact">Discuss Options</Link>
+              <Link href="/contact">Contact Us</Link>
             </Button>
           </div>
         </div>

@@ -46,15 +46,15 @@ export default function Home() {
             <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Award className="size-5 text-primary" />
-                <span>10+ Years Experience</span>
+                <span>Quality Craftsmanship</span>
               </div>
               <div className="flex items-center gap-2">
                 <Users className="size-5 text-primary" />
-                <span>500+ Projects Completed</span>
+                <span>Residential & Commercial</span>
               </div>
               <div className="flex items-center gap-2">
                 <Shield className="size-5 text-primary" />
-                <span>Fully Licensed & Insured</span>
+                <span>On Time & On Budget</span>
               </div>
             </div>
           </div>

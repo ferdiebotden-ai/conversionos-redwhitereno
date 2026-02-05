@@ -75,10 +75,11 @@ export default function BasementPage() {
             </h1>
           </div>
           <p className="mt-4 max-w-2xl text-lg text-muted-foreground md:mt-6">
-            Your basement is valuable real estate waiting to be unlocked.
-            Whether you need a family entertainment space, home office, gym, or
-            rental income suite, we&apos;ll transform your basement into
-            functional living space.
+            You may not spend a lot of time in your basement, but that may
+            change after we complete your renovation. We do plumbing and
+            electrical. We install vents, insulation, and drywall. And we paint.
+            Add your decorating style to our renovations and transform your
+            perspective on an entire floor of your home.
           </p>
         </div>
       </section>

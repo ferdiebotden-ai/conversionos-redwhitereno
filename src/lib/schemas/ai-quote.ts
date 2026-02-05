@@ -43,6 +43,8 @@ export type AIQuoteLineItem = z.infer<typeof AIQuoteLineItemSchema>;
 
 /**
  * Complete AI-generated quote structure
+ * NOTE: All fields must be required (not optional) for OpenAI structured output compatibility.
+ * Use empty strings or empty arrays for "optional" data.
  */
 export const AIGeneratedQuoteSchema = z.object({
   /** Individual line items */
@@ -54,14 +56,14 @@ export const AIGeneratedQuoteSchema = z.object({
   /** Items explicitly not included */
   exclusions: z.array(z.string().max(200)).max(10),
 
-  /** Optional professional notes or recommendations */
-  professionalNotes: z.string().max(500).optional(),
+  /** Professional notes or recommendations (use empty string if none) */
+  professionalNotes: z.string().max(500),
 
   /** Overall confidence in the quote (0-1) */
   overallConfidence: z.number().min(0).max(1),
 
-  /** Summary of how the total was calculated */
-  calculationSummary: z.string().max(300).optional(),
+  /** Summary of how the total was calculated (use empty string if none) */
+  calculationSummary: z.string().max(300),
 });
 
 export type AIGeneratedQuote = z.infer<typeof AIGeneratedQuoteSchema>;

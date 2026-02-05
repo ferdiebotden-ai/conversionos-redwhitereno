@@ -5,33 +5,33 @@ const testimonials = [
   {
     id: 1,
     quote:
-      "Red White Reno transformed our dated kitchen into a modern masterpiece. The attention to detail was incredible, and they finished on time and on budget.",
-    author: "Sarah M.",
-    projectType: "Kitchen Renovation",
+      "Red White Reno Inc. did an excellent job on the complete renovation of my bathroom. Michel and Clodagh are extremely attentive to the smallest detail and provide excellent information along the way to assist in decision-making. They and their workers are friendly, intelligent and courteous. The work was excellent, timely and well-priced.",
+    author: "Justin O.",
+    projectType: "Bathroom Renovation",
     rating: 5,
   },
   {
     id: 2,
     quote:
-      "We couldn't be happier with our new basement. It's now our favorite room in the house. Professional, courteous, and skilled craftsmen.",
-    author: "Mike & Jennifer T.",
+      "Michel & crew organized and accomplished converting our unfinished basement into additional comfortable living space. The workmanship, care for detail, and suggestions were excellent, and coordination and cooperation with other contractors was generous. When we needed changes to our original plans, the work proceeded cheerfully and quickly!",
+    author: "Peter R.",
     projectType: "Basement Finishing",
     rating: 5,
   },
   {
     id: 3,
     quote:
-      "The bathroom renovation exceeded our expectations. The AI visualizer helped us pick the perfect tile combination before they even started work.",
-    author: "David K.",
-    projectType: "Bathroom Renovation",
+      "We couldn't have been more happy with the work done by Red White Reno Inc. Thoughtful planning and quoting, efficient timeline, mindful of budget, trustworthy and comfortable to have in our home amongst fantastic construction. We love our new space and know that it is so much more usable now, thanks to Michel & Clodagh!",
+    author: "Kaleigh S.",
+    projectType: "Home Renovation",
     rating: 5,
   },
   {
     id: 4,
     quote:
-      "From the initial quote to the final walkthrough, everything was handled professionally. Highly recommend for any renovation project.",
-    author: "Lisa R.",
-    projectType: "Flooring Installation",
+      "Michel does amazing work. I would highly recommend Red White Reno Inc.",
+    author: "Marcus N.",
+    projectType: "Renovation",
     rating: 5,
   },
 ]

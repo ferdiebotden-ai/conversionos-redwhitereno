@@ -79,7 +79,7 @@ export function ResultDisplay({
   };
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-6', className)} data-testid="visualization-result">
       {/* Success header */}
       <div className="text-center">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">

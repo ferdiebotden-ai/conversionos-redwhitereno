@@ -75,9 +75,11 @@ export default function BathroomPage() {
             </h1>
           </div>
           <p className="mt-4 max-w-2xl text-lg text-muted-foreground md:mt-6">
-            Transform your bathroom into a personal retreat. From spa-like
-            master baths to efficient powder rooms, we create spaces that
-            combine style with functionality.
+            You don&apos;t have to stay in a fancy hotel to enjoy a beautiful
+            bathroom. We can transform this functional space into something
+            much more. Choose the perfect toilet, tub or shower stall, vanity,
+            tile, lighting, and paint colour, and we&apos;ll create the bathroom
+            you&apos;ve always wanted.
           </p>
         </div>
       </section>

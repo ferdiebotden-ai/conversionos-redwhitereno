@@ -15,9 +15,10 @@ interface MessageBubbleProps {
   content: string;
   images?: string[] | undefined;
   timestamp?: Date | undefined;
+  'data-testid'?: string;
 }
 
-export function MessageBubble({ role, content, images, timestamp }: MessageBubbleProps) {
+export function MessageBubble({ role, content, images, timestamp, 'data-testid': dataTestId }: MessageBubbleProps) {
   const isUser = role === 'user';
 
   return (
@@ -26,6 +27,7 @@ export function MessageBubble({ role, content, images, timestamp }: MessageBubbl
         'flex gap-3 px-4 py-3',
         isUser ? 'flex-row-reverse' : 'flex-row'
       )}
+      data-testid={dataTestId || `${role}-message`}
     >
       {/* Avatar */}
       <Avatar className={cn(
@@ -68,7 +70,7 @@ export function MessageBubble({ role, content, images, timestamp }: MessageBubbl
         {/* Text content */}
         <div
           className={cn(
-            'rounded-2xl px-4 py-2.5',
+            'rounded-[1rem] px-4 py-2.5',
             isUser
               ? 'bg-primary text-primary-foreground rounded-br-md'
               : 'bg-muted text-foreground rounded-bl-md'

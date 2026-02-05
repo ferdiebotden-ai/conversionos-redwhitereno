@@ -12,7 +12,11 @@ import {
   StyleSheet,
   Image,
 } from '@react-pdf/renderer';
+import path from 'path';
 import type { Lead, QuoteDraft, QuoteLineItem } from '@/types/database';
+
+// Get absolute path to logo for server-side PDF rendering
+const LOGO_PATH = path.join(process.cwd(), 'public', 'images', 'red-white-reno-logo.png');
 
 // Red White Reno brand colors
 const COLORS = {
@@ -324,11 +328,11 @@ export function QuotePdfDocument({ lead, quote }: QuotePdfProps) {
         <View style={styles.header}>
           {/* Logo and Company Info */}
           <View style={styles.logoSection}>
-            {/* Logo placeholder - using text until we have the actual logo */}
-            <View style={{ width: 80, height: 80, marginRight: 15, backgroundColor: COLORS.primary, justifyContent: 'center', alignItems: 'center' }}>
-              <Text style={{ color: COLORS.white, fontSize: 10, fontFamily: 'Helvetica-Bold', textAlign: 'center' }}>RED WHITE</Text>
-              <Text style={{ color: COLORS.white, fontSize: 8, textAlign: 'center' }}>RENO</Text>
-            </View>
+            {/* Company Logo */}
+            <Image
+              src={LOGO_PATH}
+              style={styles.logo}
+            />
             <View style={styles.companyInfo}>
               <Text style={styles.companyAddress}>42 Centre Street</Text>
               <Text style={styles.companyAddress}>Stratford, ON N5A 1E3</Text>

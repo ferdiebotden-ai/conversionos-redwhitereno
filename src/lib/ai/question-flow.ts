@@ -170,38 +170,3 @@ export const PROJECT_QUESTIONS: Record<string, string[]> = {
   ],
 };
 
-/**
- * Quick reply options for common responses
- */
-export const QUICK_REPLIES: Record<string, Array<{ label: string; value: string }>> = {
-  project_type: [
-    { label: 'Kitchen', value: 'kitchen' },
-    { label: 'Bathroom', value: 'bathroom' },
-    { label: 'Basement', value: 'basement' },
-    { label: 'Flooring', value: 'flooring' },
-  ],
-  finish_level: [
-    { label: 'Economy (Budget-friendly)', value: 'economy' },
-    { label: 'Standard (Good quality)', value: 'standard' },
-    { label: 'Premium (High-end)', value: 'premium' },
-  ],
-  timeline: [
-    { label: 'ASAP', value: 'asap' },
-    { label: '1-3 months', value: '1_3_months' },
-    { label: '3-6 months', value: '3_6_months' },
-    { label: '6+ months', value: '6_plus_months' },
-    { label: 'Just exploring', value: 'just_exploring' },
-  ],
-  kitchen_scope: [
-    { label: 'Full remodel', value: 'full' },
-    { label: 'Cabinets + counters', value: 'cabinets_counters' },
-    { label: 'Cosmetic updates', value: 'cosmetic' },
-    { label: 'Something else', value: 'other' },
-  ],
-  bathroom_scope: [
-    { label: 'Full renovation', value: 'full' },
-    { label: 'Tub to shower conversion', value: 'tub_to_shower' },
-    { label: 'Fixture updates', value: 'fixtures' },
-    { label: 'Something else', value: 'other' },
-  ],
-};

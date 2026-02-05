@@ -103,12 +103,9 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold">Leads</h2>
-        <p className="text-muted-foreground">
-          Manage and track all your renovation leads.
-        </p>
-      </div>
+      <p className="text-muted-foreground">
+        Manage and track all your renovation leads.
+      </p>
 
       <Suspense fallback={<LeadsTableSkeleton />}>
         <LeadsTable initialLeads={leads} initialPagination={pagination} />

@@ -9,17 +9,25 @@
 import { useState, useRef, type KeyboardEvent, type ChangeEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ImagePlus, Send, X } from 'lucide-react';
+import { ImagePlus, Send, X, Mic } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 interface ChatInputProps {
   onSend: (message: string, images: File[]) => void;
+  onVoiceModeToggle?: () => void;
   disabled?: boolean;
   placeholder?: string;
+  showVoiceButton?: boolean;
 }
 
-export function ChatInput({ onSend, disabled, placeholder = 'Type your message...' }: ChatInputProps) {
+export function ChatInput({
+  onSend,
+  onVoiceModeToggle,
+  disabled,
+  placeholder = 'Type your message...',
+  showVoiceButton = true,
+}: ChatInputProps) {
   const [message, setMessage] = useState('');
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -152,7 +160,23 @@ export function ChatInput({ onSend, disabled, placeholder = 'Type your message..
           disabled={disabled}
           rows={1}
           className="min-h-[40px] max-h-[120px] resize-none py-2.5"
+          data-testid="chat-input"
         />
+
+        {/* Voice button */}
+        {showVoiceButton && onVoiceModeToggle && (
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onVoiceModeToggle}
+            disabled={disabled}
+            size="icon"
+            className="h-10 w-10 shrink-0 text-[#D32F2F] hover:text-[#B71C1C] hover:bg-[#D32F2F]/10"
+            aria-label="Switch to voice mode"
+          >
+            <Mic className="h-5 w-5" />
+          </Button>
+        )}
 
         {/* Send button */}
         <Button

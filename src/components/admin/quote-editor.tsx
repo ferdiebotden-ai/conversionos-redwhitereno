@@ -22,16 +22,9 @@ import {
 } from '@/components/ui/table';
 import { QuoteLineItem, type LineItem } from './quote-line-item';
 import { AIQuoteSuggestions } from './ai-quote-suggestions';
+import { QuoteSendWizard } from './quote-send-wizard';
 import type { QuoteDraft, Json } from '@/types/database';
 import type { AIGeneratedQuote, AIQuoteLineItem } from '@/lib/schemas/ai-quote';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import {
   Plus,
   Save,
@@ -71,6 +64,8 @@ interface QuoteEditorProps {
   initialEstimate: Json | null;
   customerEmail?: string;
   customerName?: string;
+  projectType?: string;
+  goalsText?: string;
 }
 
 function generateId(): string {
@@ -85,6 +80,8 @@ interface ParsedLineItem {
   unit_price?: number;
   total?: number;
   isFromAI?: boolean;
+  isModified?: boolean;
+  isAccepted?: boolean;
 }
 
 function isLineItemObject(item: Json): item is { [key: string]: Json | undefined } {
@@ -106,6 +103,8 @@ function parseLineItems(lineItems: Json | null): LineItem[] {
         unit_price: parsed.unit_price || 0,
         total: parsed.total || 0,
         isFromAI: parsed.isFromAI || false,
+        isModified: parsed.isModified || false,
+        isAccepted: parsed.isAccepted || false,
       };
     });
 }
@@ -132,6 +131,8 @@ export function QuoteEditor({
   initialEstimate,
   customerEmail,
   customerName,
+  projectType = 'other',
+  goalsText,
 }: QuoteEditorProps) {
   // Extract AI quote from initial estimate
   const aiQuoteFromEstimate = extractAIQuote(initialEstimate);
@@ -175,10 +176,7 @@ export function QuoteEditor({
 
   // PDF and send quote state
   const [isDownloading, setIsDownloading] = useState(false);
-  const [isSending, setIsSending] = useState(false);
-  const [showSendDialog, setShowSendDialog] = useState(false);
-  const [customMessage, setCustomMessage] = useState('');
-  const [sendSuccess, setSendSuccess] = useState(false);
+  const [showSendWizard, setShowSendWizard] = useState(false);
   const [sentAt, setSentAt] = useState<Date | null>(
     initialQuote?.sent_at ? new Date(initialQuote.sent_at) : null
   );
@@ -287,6 +285,25 @@ export function QuoteEditor({
     markChanged();
   }
 
+  function handleDuplicateItem(index: number) {
+    const itemToDuplicate = lineItems[index];
+    if (!itemToDuplicate) return;
+
+    const duplicatedItem: LineItem = {
+      ...itemToDuplicate,
+      id: generateId(),
+      description: `${itemToDuplicate.description} (copy)`,
+      isFromAI: false, // Duplicates are manual
+      isModified: false,
+      isAccepted: false,
+    };
+
+    const newItems = [...lineItems];
+    newItems.splice(index + 1, 0, duplicatedItem);
+    setLineItems(newItems);
+    markChanged();
+  }
+
   // AI integration handlers
   function handleAcceptAIItem(item: AIQuoteLineItem) {
     const newLineItem: LineItem = {
@@ -298,6 +315,8 @@ export function QuoteEditor({
       unit_price: item.total,
       total: item.total,
       isFromAI: true,
+      isModified: false,
+      isAccepted: true,
     };
     setLineItems([...lineItems, newLineItem]);
 
@@ -326,6 +345,8 @@ export function QuoteEditor({
         unit_price: item.total,
         total: item.total,
         isFromAI: true,
+        isModified: false,
+        isAccepted: true,
       }));
 
     setLineItems([...lineItems, ...newItems]);
@@ -385,6 +406,8 @@ export function QuoteEditor({
       unit_price: item.total,
       total: item.total,
       isFromAI: true,
+      isModified: false,
+      isAccepted: true,
     }));
 
     setLineItems(aiItems);
@@ -455,8 +478,8 @@ export function QuoteEditor({
     }
   }
 
-  // Send quote email
-  async function handleSendQuote() {
+  // Handle send wizard opening - save first if needed
+  async function handleOpenSendWizard() {
     if (lineItems.length === 0) {
       setError('Add line items before sending quote');
       return;
@@ -472,38 +495,12 @@ export function QuoteEditor({
       await saveQuote();
     }
 
-    setIsSending(true);
-    setError(null);
-    setSendSuccess(false);
+    setShowSendWizard(true);
+  }
 
-    try {
-      const response = await fetch(`/api/quotes/${leadId}/send`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customMessage: customMessage.trim() || undefined,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to send quote');
-      }
-
-      const data = await response.json();
-      setSentAt(new Date(data.data.sentAt));
-      setSendSuccess(true);
-      setShowSendDialog(false);
-      setCustomMessage('');
-
-      // Refresh the page to update status
-      window.location.reload();
-    } catch (err) {
-      console.error('Error sending quote:', err);
-      setError(err instanceof Error ? err.message : 'Failed to send quote');
-    } finally {
-      setIsSending(false);
-    }
+  // Handle send complete - refresh the page
+  function handleSendComplete() {
+    window.location.reload();
   }
 
   return (
@@ -595,6 +592,7 @@ export function QuoteEditor({
                     item={item}
                     onChange={(updated) => handleUpdateItem(index, updated)}
                     onDelete={() => handleDeleteItem(index)}
+                    onDuplicate={() => handleDuplicateItem(index)}
                   />
                 ))}
               </TableBody>
@@ -754,12 +752,6 @@ export function QuoteEditor({
                   </span>
                 </div>
               )}
-              {sendSuccess && !sentAt && (
-                <div className="flex items-center gap-2 text-sm text-green-600">
-                  <Check className="h-4 w-4" />
-                  <span>Quote sent successfully!</span>
-                </div>
-              )}
             </div>
 
             <div className="flex gap-2">
@@ -777,15 +769,11 @@ export function QuoteEditor({
               </Button>
 
               <Button
-                onClick={() => setShowSendDialog(true)}
-                disabled={isSending || lineItems.length === 0 || !customerEmail}
+                onClick={handleOpenSendWizard}
+                disabled={lineItems.length === 0 || !customerEmail}
                 className="bg-[#D32F2F] hover:bg-[#B71C1C]"
               >
-                {isSending ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4 mr-2" />
-                )}
+                <Send className="h-4 w-4 mr-2" />
                 {sentAt ? 'Resend Quote' : 'Send Quote'}
               </Button>
             </div>
@@ -793,77 +781,21 @@ export function QuoteEditor({
         </CardContent>
       </Card>
 
-      {/* Send Quote Dialog */}
-      <Dialog open={showSendDialog} onOpenChange={setShowSendDialog}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Send Quote to Customer</DialogTitle>
-            <DialogDescription>
-              This will email the quote as a PDF attachment to {customerName || 'the customer'} at{' '}
-              <span className="font-medium">{customerEmail}</span>
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="custom-message">Personal Message (Optional)</Label>
-              <Textarea
-                id="custom-message"
-                value={customMessage}
-                onChange={(e) => setCustomMessage(e.target.value)}
-                placeholder="Add a personal note to the customer..."
-                rows={4}
-                maxLength={500}
-              />
-              <p className="text-xs text-muted-foreground text-right">
-                {customMessage.length}/500 characters
-              </p>
-            </div>
-
-            <div className="bg-muted p-3 rounded-lg space-y-1 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Total Amount</span>
-                <span className="font-semibold">{formatCurrency(total)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Deposit Required</span>
-                <span className="font-semibold text-[#D32F2F]">{formatCurrency(depositRequired)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Line Items</span>
-                <span>{lineItems.length} items</span>
-              </div>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowSendDialog(false)}
-              disabled={isSending}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSendQuote}
-              disabled={isSending}
-              className="bg-[#D32F2F] hover:bg-[#B71C1C]"
-            >
-              {isSending ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                <>
-                  <Send className="h-4 w-4 mr-2" />
-                  Send Quote Email
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Send Quote Wizard with Email Preview */}
+      <QuoteSendWizard
+        open={showSendWizard}
+        onOpenChange={setShowSendWizard}
+        leadId={leadId}
+        customerName={customerName || 'Customer'}
+        customerEmail={customerEmail || ''}
+        projectType={projectType}
+        quoteTotal={total}
+        depositRequired={depositRequired}
+        lineItemCount={lineItems.length}
+        goalsText={goalsText}
+        sentAt={sentAt}
+        onSendComplete={handleSendComplete}
+      />
     </div>
   );
 }
