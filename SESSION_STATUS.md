@@ -1,7 +1,7 @@
 # Session Status - Lead-to-Quote Engine v2
 
-> **Last Updated:** February 5, 2026 (Enhanced Loading Experiences)
-> **Status:** LAUNCHED - Production Ready
+> **Last Updated:** February 5, 2026 (Pre-Deployment Hardening & Full Sync)
+> **Status:** LAUNCHED - Production Ready & Deployed
 > **Current Phase:** Phase 5 - Testing & Launch (COMPLETE) + Visualizer Enhancement (7 Phases COMPLETE)
 
 ## North Star (Don't Forget)
@@ -17,8 +17,8 @@ We're building an AI-native lead-to-quote platform for renovation contractors. U
 | Next Task ID | N/A - All PRD Tasks Complete |
 | Blockers | None |
 | Build Status | Passing |
-| Unit Tests | 139 passing (55 core + 84 visualizer) |
-| E2E Tests | 96 passing (73 core + 23 visualizer) |
+| Unit Tests | 139/139 passing (55 core + 84 visualizer) |
+| E2E Tests | 210/252 passing (remaining failures are AI/email API-dependent) |
 | Production URL | https://leadquoteenginev2.vercel.app |
 | Branch | feature/dev-003-shadcn-ui |
 | Security Bypass | REMOVED (production safe) |
@@ -113,6 +113,32 @@ We're building an AI-native lead-to-quote platform for renovation contractors. U
 ---
 
 ## Recent Session Log
+
+### Session: February 5, 2026 (Pre-Deployment Hardening & Full Sync)
+**Completed:**
+- Pre-deployment review and fix plan executed
+- Created error boundaries (`error.tsx`, `not-found.tsx`, `admin/error.tsx`)
+- Fixed admin layout — Header/Footer hidden on `/admin` routes via `usePathname()`
+- Added try-catch to all AI services (`vision.ts`, `extraction.ts`, `photo-analyzer.ts`)
+- Fixed `createServiceClient()` to throw in production when `SUPABASE_SERVICE_ROLE_KEY` missing
+- Fixed 8 E2E test failures (admin protected route selectors, visualizer flow assertions, schema test data)
+- Committed and pushed all outstanding source code changes (shadcn/ui migration, outdoor service, voice mode, realtime, strict E2E tests)
+- Deployed to Vercel production with env vars (SUPABASE_SERVICE_ROLE_KEY, OPENAI_API_KEY, GOOGLE_GENERATIVE_AI_API_KEY, NEXT_PUBLIC_DEMO_MODE, NEXT_PUBLIC_APP_URL)
+- Verified all pages return 200 on production
+
+**Decisions Made:**
+- Web app (not native iOS) is the right demo platform — use iPad + Safari for client demos
+- RESEND_API_KEY still missing — email features won't work until added
+
+**Blockers:**
+- RESEND_API_KEY needed for email functionality
+
+**Next Session:**
+1. Add RESEND_API_KEY to Vercel for email functionality
+2. Optional: Add PWA manifest for home screen install experience
+3. Client demo preparation and walkthrough
+
+---
 
 ### Session: February 5, 2026 (Enhanced Loading Experiences)
 **Completed:**
@@ -421,6 +447,7 @@ SELECT set_admin_role('email@example.com');
 
 | Date | Session | Changes |
 |------|---------|---------|
+| 2026-02-05 | Pre-Deployment Hardening | Error boundaries, admin layout fix, AI error handling, service client guard, E2E fixes, full source sync, Vercel deploy |
 | 2026-02-05 | Enhanced Loading Experiences | Reusable StepProgress + PdfSkeleton components, multi-step progress in submit modal and quote send wizard |
 | 2026-02-05 | AI Visualizer World-Class Enhancement | Complete 7-phase visualizer enhancement: prompt engineering, photo analysis, conversation mode, database schema, admin integration, validation, metrics |
 | 2026-02-04 | UX Fixes & PRD Cleanup | Removed Quick Replies, fixed Voice Mode, simplified Visualizer, updated PRD as source of truth |
