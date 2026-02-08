@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Pencil, Plus, FileText, Clock, CheckCircle2, XCircle, Send } from 'lucide-react';
+import CreateDrawingButton from '@/components/cad/create-drawing-button';
 import type { Drawing, DrawingStatus } from '@/types/database';
 
 export const dynamic = 'force-dynamic';
@@ -124,6 +125,7 @@ export default async function DrawingsPage() {
             Architecture drawings and permit plans.
           </p>
         </div>
+        <CreateDrawingButton />
       </div>
 
       <Suspense fallback={<DrawingsGridSkeleton />}>

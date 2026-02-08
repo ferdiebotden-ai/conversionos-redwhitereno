@@ -9,6 +9,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,8 +24,29 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from '@/components/ui/tooltip';
 import { ArrowLeft, Save, FileText, Pencil } from 'lucide-react';
 import type { Drawing, DrawingStatus } from '@/types/database';
+
+const CadEditor = dynamic(() => import('@/components/cad/cad-editor'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full min-h-[600px] rounded-lg border bg-background overflow-hidden">
+      <div className="w-12 bg-card border-r" />
+      <div className="flex flex-col flex-1">
+        <div className="h-10 bg-card border-b" />
+        <div className="flex-1 bg-muted/30 flex items-center justify-center">
+          <Skeleton className="h-8 w-32" />
+        </div>
+        <div className="h-7 bg-muted border-t" />
+      </div>
+    </div>
+  ),
+});
 
 const STATUS_CONFIG: Record<DrawingStatus, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
   draft: { label: 'Draft', variant: 'secondary' },
@@ -124,36 +146,25 @@ export default function DrawingDetailPage() {
             )}
           </div>
         </div>
-        <Button onClick={handleSave} disabled={saving} size="sm">
-          <Save className="h-4 w-4 mr-1" />
-          {saving ? 'Saving...' : 'Save'}
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button onClick={handleSave} disabled={saving} size="sm">
+              <Save className="h-4 w-4 mr-1" />
+              {saving ? 'Saving...' : 'Save Details'}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Saves name, description, and status. Drawing content autosaves.</TooltipContent>
+        </Tooltip>
       </div>
 
       {/* Content grid */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Left: CAD viewer placeholder */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Pencil className="h-5 w-5" />
-                Drawing Editor
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="aspect-[16/10] bg-muted rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-border">
-                <FileText className="h-16 w-16 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground font-medium">Chili3D Editor</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  CAD editor will be embedded here when Chili3D is deployed
-                </p>
-                <p className="text-xs text-muted-foreground mt-4">
-                  Phase 6: Build &amp; deploy Chili3D, embed via iframe, bridge postMessage API
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Left: CAD Editor */}
+        <div className="lg:col-span-2 min-h-[600px]">
+          <CadEditor
+            drawingId={id}
+            initialData={drawing.drawing_data ?? null}
+          />
         </div>
 
         {/* Right: Metadata panel */}

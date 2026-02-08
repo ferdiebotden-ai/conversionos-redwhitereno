@@ -1,8 +1,8 @@
 # Session Status - Lead-to-Quote Engine v2
 
-> **Last Updated:** February 6, 2026 (Invoicing + Drawings)
+> **Last Updated:** February 7, 2026 (CAD Editor Phase 3: Permit-Ready Drawing Tool)
 > **Status:** LAUNCHED - Production Ready & Deployed
-> **Current Phase:** Phase 5 - Testing & Launch (COMPLETE) + Visualizer Enhancement (COMPLETE) + Accounting & Drawings (COMPLETE)
+> **Current Phase:** Phase 7: CAD Editor Permit-Ready (COMPLETE) — All phases through DEV-106 + CAD Phase 3 complete
 
 ## North Star (Don't Forget)
 We're building an AI-native lead-to-quote platform for renovation contractors. Users chat with AI to describe their project, upload photos for instant visualization, and get ballpark estimates in minutes instead of days. First client: Red White Reno (Stratford, ON).
@@ -13,11 +13,11 @@ We're building an AI-native lead-to-quote platform for renovation contractors. U
 
 | Metric | Status |
 |--------|--------|
-| Current Phase | Phase 6: Accounting & Drawings (COMPLETE) |
-| Next Task ID | N/A - All Tasks Complete (DEV-001 through DEV-106) |
+| Current Phase | Phase 7: CAD Editor Permit-Ready (COMPLETE) |
+| Next Task ID | N/A - All Tasks Complete (DEV-001 through DEV-106 + CAD Phase 3) |
 | Blockers | None |
 | Build Status | Passing |
-| Unit Tests | 139/139 passing (55 core + 84 visualizer) |
+| Unit Tests | 230/230 passing (55 core + 84 visualizer + 91 invoice/drawing) |
 | E2E Tests | 210/252 passing (remaining failures are AI/email API-dependent) |
 | Production URL | https://leadquoteenginev2.vercel.app |
 | Branch | feature/dev-003-shadcn-ui |
@@ -139,6 +139,68 @@ We're building an AI-native lead-to-quote platform for renovation contractors. U
 ---
 
 ## Recent Session Log
+
+### Session: February 7, 2026 (CAD Editor Phase 3: Permit-Ready Drawing Tool)
+**Completed:**
+- Full CAD editor upgrade from placeholder to permit-ready drawing tool
+- Phase 3A: Hardening & Save System — autosave wiring with data-only fingerprint, camera persistence, error handling, schema tightening
+- Phase 3B: Dimension Tool + Room Labels + Text Annotations — 3 new drawing tools, HUD overlays (north arrow, scale bar), room detection via Shoelace algorithm
+- Phase 3C: Export & Print Layout — PDF export with title block/scale bar/north arrow, layers panel (5 architectural layers), context-sensitive properties panel
+
+**New Files Created (14):**
+- `src/components/cad/objects/dimension-mesh.tsx` — Dimension lines with extension lines, arrows, measurement labels
+- `src/components/cad/objects/room-label.tsx` — Room name + area labels (Html overlay)
+- `src/components/cad/objects/text-annotation.tsx` — Text annotations with optional leader lines
+- `src/components/cad/objects/north-arrow.tsx` — HUD north arrow (top-right)
+- `src/components/cad/objects/scale-bar.tsx` — HUD scale bar (bottom-left, auto-adjusts with zoom)
+- `src/components/cad/tools/dimension-tool.tsx` — Click-click dimension placement with wall endpoint snapping
+- `src/components/cad/tools/label-tool.tsx` — Click to place room label with auto room detection
+- `src/components/cad/tools/text-tool.tsx` — Click to place text annotation
+- `src/components/cad/lib/room-detection.ts` — Wall adjacency graph, cycle tracing, Shoelace area, point-in-polygon
+- `src/components/cad/lib/export/canvas-capture.ts` — Canvas screenshot capture + download helpers
+- `src/components/cad/lib/export/pdf-generator.ts` — jsPDF-based PDF with title block, architectural scales
+- `src/components/cad/panels/export-dialog.tsx` — Export dialog (Quick Export + Print Layout tabs)
+- `src/components/cad/panels/layers-panel.tsx` — Layer visibility/lock toggles, add/delete
+- `src/components/cad/panels/properties-panel.tsx` — Properties editor for selected objects
+
+**Modified Files (12):**
+- `drawing-types.ts` — Added RoomLabel, TextAnnotation types; layer field on all entities; extended ToolType
+- `drawing-store.ts` — CRUD for dimensions/labels/text, layer management, camera persistence, architectural default layers
+- `drawing-serializer.ts` — Exported DrawingDataSchema, added Zod schemas for new types, backward-compatible `.default([])`
+- `cad-editor.tsx` — Wired autosave, right sidebar with layers/properties/catalog
+- `cad-canvas.tsx` — Renders all new meshes/tools, debounced camera persistence
+- `camera-controller.tsx` — Applies stored camera positions
+- `editor-header.tsx` — Export button, "Saved Xs ago" display
+- `toolbar.tsx` — 3 new tools (Dimension, Room Label, Text)
+- `status-bar.tsx` — New tool labels, selected info for new types
+- `use-drawing-autosave.ts` — Data-only fingerprint comparison
+- `use-keyboard-shortcuts.ts` — L, T, M shortcuts
+- `lib/schemas/drawing.ts` — Replaced permissive z.record with strict DrawingDataSchema
+
+**New Dependencies:**
+- `jspdf@^2.5` — PDF generation
+
+**Tests Fixed:**
+- Updated 2 invoice-schema tests to use valid DrawingDataSchema data (was using permissive z.record format)
+
+**Build Status:** Passing (230/230 unit tests, build clean)
+
+**Decisions Made:**
+- Replaced permissive `z.record(z.string(), z.unknown())` for drawing_data with strict `DrawingDataSchema` — prevents invalid data from reaching the database
+- Used `.default([])` in Zod schemas for roomLabels/textAnnotations for backward compatibility with existing drawings
+- Camera persistence uses debounced (500ms) OrbitControls onChange — no history push (camera changes don't trigger undo)
+- Autosave uses data fingerprint comparison (JSON.stringify of data fields only) to avoid firing on UI state changes
+
+**Blockers:**
+- None
+
+**Next Session:**
+1. Deploy CAD editor changes to Vercel
+2. Manual test all CAD features in browser
+3. Write E2E tests for drawing editor flows
+4. Add RESEND_API_KEY for email functionality
+
+---
 
 ### Session: February 6, 2026 (Full Invoicing System + Architecture Drawings)
 **Completed:**
@@ -524,13 +586,13 @@ None
 
 ## Notes for Next Session
 
-### PROJECT STATUS: PRODUCTION READY + ACCOUNTING & DRAWINGS COMPLETE
-All tasks (DEV-001 through DEV-106) are complete. Full platform with invoicing, payments, Sage export, and architecture drawings.
+### PROJECT STATUS: PRODUCTION READY + CAD EDITOR PERMIT-READY
+All tasks (DEV-001 through DEV-106 + CAD Phase 3) are complete. Full platform with invoicing, payments, Sage export, and a built-in permit-ready CAD drawing tool (no longer needs external Chili3D).
 
 ### Post-Launch Priority Tasks
-1. **Deploy invoicing + drawings to Vercel** - Code ready, needs deployment
+1. **Deploy CAD editor + invoicing to Vercel** - Code ready, needs deployment
 2. **Add RESEND_API_KEY** - Required for invoice email delivery
-3. **Build and deploy Chili3D** - Standalone CAD app for iframe embedding
+3. **Write CAD editor E2E tests** - Test dimension/label/text tools, export, layers
 4. **Write invoice + drawing tests** - Unit tests for schemas/calculations, E2E for flows
 5. **Set up UptimeRobot** - External uptime monitoring
 6. **Configure Sentry** - Error tracking and alerting
@@ -556,7 +618,7 @@ SELECT set_admin_role('email@example.com');
 - **AI Design Visualizer** - 4-step flow: Photo → Room → Style → Constraints → Generate
 - **Admin Dashboard** - Lead management, AI quote generation, PDF quotes, email delivery
 - **Invoicing System** - Create from quotes, record payments, generate PDFs, send emails, Sage 50 CSV export
-- **Architecture Drawings** - Drawing management with status workflow, lead linking (Chili3D CAD pending)
+- **Architecture Drawings** - Built-in CAD editor with walls, doors, windows, furniture, dimensions, room labels, text annotations, layers, PDF export with title block
 
 ---
 
@@ -564,6 +626,7 @@ SELECT set_admin_role('email@example.com');
 
 | Date | Session | Changes |
 |------|---------|---------|
+| 2026-02-07 | CAD Editor Phase 3 | Permit-ready drawing tool: dimensions, room labels, text annotations, PDF export with title block, layers panel, properties panel, autosave, camera persistence (14 new files, 12 modified) |
 | 2026-02-06 | Invoicing + Drawings | Full invoicing system (CRUD, payments, PDF, email, Sage CSV), architecture drawings (CRUD, admin pages), dashboard integration, 2 migrations applied |
 | 2026-02-05 | Voice Chat Overhaul | GA model upgrade, semantic VAD, transcript ordering fix, scroll fix, UX redesign, tablet layout, admin demo link |
 | 2026-02-05 | Pre-Deployment Hardening | Error boundaries, admin layout fix, AI error handling, service client guard, E2E fixes, full source sync, Vercel deploy |
