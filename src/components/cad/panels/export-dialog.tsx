@@ -28,7 +28,7 @@ import {
 import { captureCanvas, findCanvasElement, downloadDataUrl, downloadBlob } from '../lib/export/canvas-capture';
 
 interface ExportDialogProps {
-  drawingName?: string;
+  drawingName?: string | undefined;
 }
 
 export function ExportDialog({ drawingName = 'Untitled Drawing' }: ExportDialogProps) {
@@ -53,11 +53,16 @@ export function ExportDialog({ drawingName = 'Untitled Drawing' }: ExportDialogP
     return document.querySelector('canvas[data-engine]') ?? document.querySelector('canvas');
   }
 
+  function sanitize(s: string) {
+    return s.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_-]/g, '');
+  }
+
   async function handleExportPNG() {
     const canvas = getCanvas();
     if (!canvas) return;
     const dataUrl = captureCanvas(canvas, 2);
-    downloadDataUrl(dataUrl, `${projectName.replace(/\s+/g, '_')}.png`);
+    const date = new Date().toISOString().slice(0, 10);
+    downloadDataUrl(dataUrl, `A-P-01_${sanitize(projectName)}_${date}.png`);
   }
 
   async function handleExportPDF() {
@@ -66,18 +71,19 @@ export function ExportDialog({ drawingName = 'Untitled Drawing' }: ExportDialogP
     setGenerating(true);
 
     try {
+      const date = new Date().toISOString().slice(0, 10);
       const dataUrl = captureCanvas(canvas, 2);
       const blob = await generatePDF(dataUrl, paperSize, {
         projectName,
         address,
         designerName,
-        date: new Date().toLocaleDateString('en-CA'),
+        date,
         sheetTitle,
         scale,
         includeScaleBar,
         includeNorthArrow,
       });
-      downloadBlob(blob, `${projectName.replace(/\s+/g, '_')}_${sheetTitle.replace(/\s+/g, '_')}.pdf`);
+      downloadBlob(blob, `A-P-01_${sanitize(projectName)}_${sanitize(sheetTitle)}_${date}.pdf`);
     } finally {
       setGenerating(false);
     }

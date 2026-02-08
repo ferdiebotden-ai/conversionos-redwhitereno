@@ -164,6 +164,7 @@ export default function DrawingDetailPage() {
           <CadEditor
             drawingId={id}
             initialData={drawing.drawing_data ?? null}
+            drawingName={name}
           />
         </div>
 

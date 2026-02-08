@@ -17,9 +17,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 interface CadEditorProps {
   drawingId: string;
   initialData?: unknown;
+  drawingName?: string;
 }
 
-export default function CadEditor({ drawingId, initialData }: CadEditorProps) {
+export default function CadEditor({ drawingId, initialData, drawingName }: CadEditorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'unsaved'>('idle');
   const [catalogOpen, setCatalogOpen] = useState(false);
@@ -102,7 +103,7 @@ export default function CadEditor({ drawingId, initialData }: CadEditorProps) {
 
       {/* Main area */}
       <div className="flex flex-col flex-1 min-w-0">
-        <EditorHeader onSave={handleSave} saveStatus={effectiveSaveStatus} lastSaved={lastSaved} />
+        <EditorHeader onSave={handleSave} saveStatus={effectiveSaveStatus} lastSaved={lastSaved} drawingName={drawingName} />
         <div className="flex-1 relative">
           <CadCanvas />
         </div>

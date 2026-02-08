@@ -32,9 +32,10 @@ interface EditorHeaderProps {
   onSave?: () => void;
   saveStatus?: 'idle' | 'saving' | 'saved' | 'unsaved';
   lastSaved?: Date | null;
+  drawingName?: string | undefined;
 }
 
-export default function EditorHeader({ onSave, saveStatus = 'idle', lastSaved }: EditorHeaderProps) {
+export default function EditorHeader({ onSave, saveStatus = 'idle', lastSaved, drawingName }: EditorHeaderProps) {
   const cameraMode = useDrawingStore((s) => s.cameraMode);
   const setCameraMode = useDrawingStore((s) => s.setCameraMode);
   const units = useDrawingStore((s) => s.units);
@@ -122,7 +123,7 @@ export default function EditorHeader({ onSave, saveStatus = 'idle', lastSaved }:
         )}
 
         {/* Export button */}
-        <ExportDialog />
+        <ExportDialog drawingName={drawingName} />
 
         {/* Save button */}
         <Tooltip>

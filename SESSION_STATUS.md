@@ -1,8 +1,8 @@
 # Session Status - Lead-to-Quote Engine v2
 
-> **Last Updated:** February 7, 2026 (CAD Editor Phase 3: Permit-Ready Drawing Tool)
+> **Last Updated:** February 7, 2026 (Drawings UX Polish + Redeployment)
 > **Status:** LAUNCHED - Production Ready & Deployed
-> **Current Phase:** Phase 7: CAD Editor Permit-Ready (COMPLETE) — All phases through DEV-106 + CAD Phase 3 complete
+> **Current Phase:** Phase 7: CAD Editor Permit-Ready (COMPLETE) — All phases through DEV-106 + CAD Phase 3 + UX polish complete
 
 ## North Star (Don't Forget)
 We're building an AI-native lead-to-quote platform for renovation contractors. Users chat with AI to describe their project, upload photos for instant visualization, and get ballpark estimates in minutes instead of days. First client: Red White Reno (Stratford, ON).
@@ -139,6 +139,35 @@ We're building an AI-native lead-to-quote platform for renovation contractors. U
 ---
 
 ## Recent Session Log
+
+### Session: February 7, 2026 (Drawings UX Polish + Redeployment)
+**Completed:**
+- Red "Open" button on drawings list (brand red #D32F2F)
+- Delete button in toolbar with Trash2 icon (disabled when nothing selected)
+- Drawing name threads from detail page → CadEditor → EditorHeader → ExportDialog (was always "Untitled Drawing")
+- Professional export filenames: `A-P-01_ProjectName_2026-02-07.png`, `A-P-01_ProjectName_SheetTitle_2026-02-07.pdf`
+- Fixed `exactOptionalPropertyTypes` TypeScript errors for `drawingName` prop threading
+- Deployed to Vercel production (https://leadquoteenginev2.vercel.app)
+- Ran E2E tests: 268 passed, 48 skipped, 17 failed (known AI/email-dependent failures)
+
+**Files Modified (6):**
+- `src/app/admin/drawings/page.tsx` — Red "Open" button
+- `src/components/cad/panels/toolbar.tsx` — Delete button with Trash2 icon
+- `src/app/admin/drawings/[id]/page.tsx` — Pass `drawingName={name}` to CadEditor
+- `src/components/cad/cad-editor.tsx` — Thread `drawingName` prop to EditorHeader
+- `src/components/cad/panels/editor-header.tsx` — Thread `drawingName` to ExportDialog
+- `src/components/cad/panels/export-dialog.tsx` — Professional filenames with date stamps + sanitizer
+
+**Build Status:** Passing (230/230 unit tests, build clean)
+
+**Blockers:** None
+
+**Next Session:**
+1. Add RESEND_API_KEY for email functionality
+2. Write E2E tests for CAD editor flows
+3. Client demo preparation
+
+---
 
 ### Session: February 7, 2026 (CAD Editor Phase 3: Permit-Ready Drawing Tool)
 **Completed:**
@@ -590,7 +619,7 @@ None
 All tasks (DEV-001 through DEV-106 + CAD Phase 3) are complete. Full platform with invoicing, payments, Sage export, and a built-in permit-ready CAD drawing tool (no longer needs external Chili3D).
 
 ### Post-Launch Priority Tasks
-1. **Deploy CAD editor + invoicing to Vercel** - Code ready, needs deployment
+1. ~~Deploy CAD editor + invoicing to Vercel~~ - DONE (deployed Feb 7)
 2. **Add RESEND_API_KEY** - Required for invoice email delivery
 3. **Write CAD editor E2E tests** - Test dimension/label/text tools, export, layers
 4. **Write invoice + drawing tests** - Unit tests for schemas/calculations, E2E for flows
@@ -626,6 +655,7 @@ SELECT set_admin_role('email@example.com');
 
 | Date | Session | Changes |
 |------|---------|---------|
+| 2026-02-07 | Drawings UX Polish | Red Open button, Delete toolbar button, drawing name in export dialog, professional filenames (A-P-01 prefix + date stamps), deployed to Vercel |
 | 2026-02-07 | CAD Editor Phase 3 | Permit-ready drawing tool: dimensions, room labels, text annotations, PDF export with title block, layers panel, properties panel, autosave, camera persistence (14 new files, 12 modified) |
 | 2026-02-06 | Invoicing + Drawings | Full invoicing system (CRUD, payments, PDF, email, Sage CSV), architecture drawings (CRUD, admin pages), dashboard integration, 2 migrations applied |
 | 2026-02-05 | Voice Chat Overhaul | GA model upgrade, semantic VAD, transcript ordering fix, scroll fix, UX redesign, tablet layout, admin demo link |
