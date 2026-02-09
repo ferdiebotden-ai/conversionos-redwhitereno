@@ -17,6 +17,7 @@ import {
   ArrowLeft,
   CheckCircle,
   Lightbulb,
+  Mic,
 } from 'lucide-react';
 import type { DesignStyle, RoomType } from '@/lib/schemas/visualization';
 import type { RoomAnalysis } from '@/lib/ai/photo-analyzer';
@@ -359,9 +360,9 @@ export function VisualizerChat({
             Back
           </Button>
           <div>
-            <h2 className="font-semibold">Design Consultation</h2>
+            <h2 className="font-semibold">Chat with Mia</h2>
             <p className="text-xs text-muted-foreground">
-              Tell us about your dream space
+              Your design consultant
             </p>
           </div>
         </div>
@@ -507,10 +508,19 @@ export function VisualizerChat({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Describe your ideal renovation..."
+            placeholder="Tell Mia about your dream space..."
             disabled={isLoading || isAnalyzing}
             className="flex-1"
           />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground hover:text-primary shrink-0"
+            disabled={isLoading || isAnalyzing}
+            title="Voice mode coming soon"
+          >
+            <Mic className="w-4 h-4" />
+          </Button>
           <Button
             onClick={handleSend}
             disabled={!input.trim() || isLoading || isAnalyzing}

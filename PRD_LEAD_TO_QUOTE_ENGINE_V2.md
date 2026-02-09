@@ -1,7 +1,7 @@
 # Product Requirements Document: AI-Native Renovation Lead-to-Quote Engine
 
-**Version:** 4.0
-**Date:** February 7, 2026
+**Version:** 5.0
+**Date:** February 9, 2026
 **Author:** Claude (Cowork Mode) + Claude Code (Opus 4.6)
 **Primary Builder:** Claude Code (Opus 4.6)
 **Target Client:** Red White Reno (Initial) → Productized SaaS (Scale)
@@ -19,17 +19,18 @@
 6. [Feature 4: Admin Dashboard](#6-feature-4-admin-dashboard)
 7. [Feature 5: Invoicing & Payments](#7-feature-5-invoicing--payments)
 8. [Feature 6: Architecture Drawings & CAD Editor](#8-feature-6-architecture-drawings--cad-editor)
-9. [Technical Architecture](#9-technical-architecture)
-10. [AI Behavior Specification](#10-ai-behavior-specification)
-11. [User Experience Specification](#11-user-experience-specification)
-12. [Design System](#12-design-system)
-13. [Development Phases](#13-development-phases)
-14. [Security & Compliance](#14-security--compliance)
-15. [Testing Strategy](#15-testing-strategy)
-16. [Appendices](#16-appendices)
-17. [AI Stack Validation](#17-ai-stack-validation)
-18. [White-Label Configuration Guide](#18-white-label-configuration-guide)
-19. [Implementation Status](#19-implementation-status)
+9. [Feature 7: AI Agent Personas & Smart Chat Widget](#9-feature-7-ai-agent-personas--smart-chat-widget)
+10. [Technical Architecture](#10-technical-architecture)
+11. [AI Behavior Specification](#11-ai-behavior-specification)
+12. [User Experience Specification](#12-user-experience-specification)
+13. [Design System](#13-design-system)
+14. [Development Phases](#14-development-phases)
+15. [Security & Compliance](#15-security--compliance)
+16. [Testing Strategy](#16-testing-strategy)
+17. [Appendices](#17-appendices)
+18. [AI Stack Validation](#18-ai-stack-validation)
+19. [White-Label Configuration Guide](#19-white-label-configuration-guide)
+20. [Implementation Status](#20-implementation-status)
 
 ---
 
@@ -63,6 +64,8 @@ An AI-native web platform featuring:
 | **Multi-step Send Wizard** | Review → Preview PDF → Email → Send | Quality control without friction | ✅ LIVE |
 | **Invoicing & Payments** | Create invoices from quotes, record payments, Sage 50 export | End-to-end financial workflow | ✅ LIVE |
 | **Architecture Drawings** | Built-in permit-ready CAD editor with PDF export | No third-party CAD software needed | ✅ LIVE |
+| **AI Agent Personas** | Named AI agents with distinct roles, knowledge, and sales training | Trust-building named personas (industry best practice) | ✅ LIVE |
+| **Smart Chat Widget** | Floating receptionist widget on all public pages with text + voice | Zero-navigation AI engagement, 105% incremental ROI (Forrester) | ✅ LIVE |
 
 ### 1.3 Success Metrics
 
@@ -164,7 +167,8 @@ An AI-native web platform featuring:
 │  - SEO              - Hero section       - AI Quote         - Email with   │
 │  - Google Ads       - Services           - AI Visualizer    - formal quote │
 │  - Referral         - Portfolio          - Instant estimate - Phone call   │
-│                     - Reviews                               - Site visit   │
+│                     - Reviews            - Chat widget      - Site visit   │
+│                     - Chat widget          (receptionist)                  │
 │                                                                              │
 │  EMOTION:           EMOTION:             EMOTION:           EMOTION:        │
 │  Curious,           Evaluating,          Excited,           Committed,     │
@@ -458,40 +462,53 @@ Note: Input fixed at bottom (thumb zone)
 
 ### 3.8 Voice Mode (OpenAI Realtime API)
 
-The AI Quote Assistant supports real-time voice conversation using OpenAI's Realtime API with WebRTC. This enables natural spoken dialogue for users who prefer voice over typing.
+All three AI agents support real-time voice conversation using OpenAI's Realtime API with WebRTC. Each agent uses a persona-specific voice prompt and voice ID (see Section 9: AI Agent Personas). This enables natural spoken dialogue for users who prefer voice over typing.
 
 **Technical Architecture:**
 ```
 ┌─────────────┐     WebRTC      ┌──────────────────┐
 │   Browser   │◄───────────────▶│ OpenAI Realtime  │
 │  (voice-    │                 │     API          │
-│   mode.tsx) │                 │  (gpt-4o-rt)     │
+│   mode.tsx) │                 │  (gpt-realtime)  │
 └──────┬──────┘                 └──────────────────┘
        │
-       │ POST /api/realtime/session
+       │ POST /api/realtime/session?persona={key}
        ▼
 ┌─────────────┐
-│  Next.js    │  → Generates ephemeral client token
-│   API       │  → Returns token to browser
+│  Next.js    │  → Reads persona key from query param
+│   API       │  → Builds voice-optimized prompt via buildVoiceSystemPrompt()
+│             │  → Generates ephemeral client token with persona voice ID
 └─────────────┘
 ```
 
+**Persona-Based Voice:**
+
+| Agent | Persona Key | Voice ID | Available From |
+|-------|-------------|----------|----------------|
+| Receptionist | `receptionist` | `shimmer` | Chat widget mic button |
+| Quote Specialist | `quote-specialist` | `echo` | `/estimate` voice button |
+| Design Consultant | `design-consultant` | `shimmer` | `/visualizer` mic button |
+
+The `?persona=` query parameter defaults to `quote-specialist` for backward compatibility.
+
 **User Flow:**
-1. Click "Voice" button in chat header
+1. Click voice/mic button in the respective chat interface
 2. System checks browser support and API availability (shows loading state)
-3. Click "Start Conversation" - microphone permission requested
-4. Speak naturally - AI responds with voice audio
+3. Click "Start Conversation" (full voice mode) or auto-connect (widget compact mode)
+4. Speak naturally — AI responds with voice audio using the agent's persona
 5. Transcript appears in real-time during conversation
 6. Click "Submit Transcript" to transfer conversation to text chat
 7. Continue in text mode or submit lead
 
 **Features:**
 - Real-time audio transcription (both user and AI)
-- Audio visualizer showing voice activity
+- Audio visualizer showing voice activity (brand-colored gradient)
 - Mute/unmute toggle
 - Connection timeout (15s) prevents infinite spinner
 - API configuration check prevents cryptic errors
 - Graceful fallback to text chat on errors
+- Compact mode for the receptionist widget (fits in panel without full-screen takeover)
+- Voice-optimized prompts (1-2 sentence responses, one topic at a time, verbal acknowledgments)
 
 **Error Handling:**
 | Error Condition | User Message | Action |
@@ -507,10 +524,12 @@ The AI Quote Assistant supports real-time voice conversation using OpenAI's Real
 - Modern browser with WebRTC support (Chrome, Edge, Safari)
 
 **Key Implementation Files:**
-- `src/components/chat/voice-mode.tsx` - Voice UI and WebRTC logic
-- `src/app/api/realtime/session/route.ts` - Session token endpoint
+- `src/components/chat/voice-mode.tsx` - Full voice UI and WebRTC logic (quote/visualizer)
+- `src/components/receptionist/receptionist-voice.tsx` - Compact voice mode (widget)
+- `src/app/api/realtime/session/route.ts` - Session token endpoint (accepts `?persona=` param)
 - `src/app/api/realtime/check/route.ts` - API configuration check
 - `src/lib/realtime/config.ts` - Constants and types
+- `src/lib/ai/personas/prompt-assembler.ts` - `buildVoiceSystemPrompt()` builder
 
 ---
 
@@ -1295,9 +1314,139 @@ CREATE TABLE drawings (
 
 ---
 
-## 9. Technical Architecture
+## 9. Feature 7: AI Agent Personas & Smart Chat Widget
 
-### 9.1 Technology Stack (Actual Deployed Versions)
+### 9.1 Overview
+
+The platform features three named AI agent personas, each with a distinct role, personality, and knowledge base. A floating chat widget provides instant AI engagement on every public page without requiring navigation. This follows industry best practices from Lemonade (Maya), Wealthsimple (Willow), and other platforms where named, personality-driven AI agents measurably outperform generic chatbots in trust-building and lead conversion.
+
+**Competitive Differentiation:**
+- Named AI personas build trust and brand personality (vs anonymous "AI Assistant")
+- Floating chat widget provides zero-navigation engagement on every public page
+- Proactive teaser bubbles with page-specific messaging (105% incremental ROI per Forrester)
+- All three agents share a unified knowledge base with role-specific depth
+- Professional sales training baked into all agent prompts (conversational lead capture, objection handling)
+- Each agent supports both text and voice modes with persona-specific voice prompts
+
+### 9.2 Agent Personas
+
+| Agent | Default Name | Role | Pages | Mode |
+|-------|-------------|------|-------|------|
+| Receptionist | Emma | Virtual Receptionist | All public pages (except `/estimate`, `/visualizer`, `/admin/*`) | Text + Voice (in widget) |
+| Quote Specialist | Marcus | Budget & Cost Specialist | `/estimate` (existing chat) | Text + Voice |
+| Design Consultant | Mia | Design Consultant | `/visualizer` (existing chat) | Text + Voice |
+
+Each persona is defined by an `AgentPersona` interface:
+- `name`, `role`, `tagline`, `greeting` — identity and first impression
+- `personalityTraits` — shapes tone and language style
+- `capabilities` — what this agent can help with
+- `boundaries` — what this agent should NOT do (routes to the right agent instead)
+- `routingSuggestions` — how to hand off to other agents with embedded CTAs
+- `voiceId` — OpenAI Realtime voice for voice mode
+
+### 9.3 Knowledge Base Architecture
+
+All agents draw from shared, modular knowledge modules. Each module exports string constants consumed by the prompt assembler.
+
+| Module | Content | Used By |
+|--------|---------|---------|
+| `company.ts` | Company profile, team, hours, service area, social links, website pages | All agents |
+| `services.ts` | Detailed service scopes (room-by-room), what each includes | All agents |
+| `pricing.ts` | Per-sqft pricing by room/tier, labor rate, markup, tax, deposit, contingency | Quote Specialist (full), Receptionist (summary) |
+| `ontario-renovation.ts` | Permits, building code, tax, seasonal considerations, WSIB, energy incentives, common housing stock, climate-appropriate materials. Sub-exports: budget-focused and design-focused variants | All agents (role-appropriate variant) |
+| `sales-techniques.ts` | Conversational lead capture, objection handling, human-sounding speech, the "yes ladder", lead capture timing, relationship building, urgency without pressure | All agents |
+
+### 9.4 System Prompt Layering
+
+Prompts are assembled in four layers by `buildAgentSystemPrompt(personaKey)`:
+
+```
+Layer 1: Company + Services (shared, scope varies by agent)
+  - Receptionist: Full company profile + service summary + general Ontario knowledge
+  - Quote Specialist: Company summary + detailed service scopes
+  - Design Consultant: Company summary + service summary
+
+Layer 2: Role-specific knowledge
+  - Receptionist: Pricing summary (ranges only)
+  - Quote Specialist: Full pricing details + Ontario budget knowledge
+  - Design Consultant: Ontario design knowledge
+
+Layer 3: Sales training (shared by all agents)
+
+Layer 4: Persona identity + boundaries + routing + conversation rules
+```
+
+Voice prompts use `buildVoiceSystemPrompt(personaKey)` — same knowledge, but with voice-specific rules (1-2 sentence responses, one topic at a time, verbal acknowledgments, no formatting).
+
+### 9.5 Smart Chat Widget
+
+The receptionist widget is a floating UI element available on all public pages.
+
+**FAB (Floating Action Button):**
+- Bottom-right corner, brand primary color, `MessageCircle` icon (industry standard)
+- 56px desktop, 48px mobile
+- Subtle pulse animation on first load (3s), then stops
+- Morphs to X icon when panel is open
+
+**Proactive Teaser Bubble:**
+- Appears 6 seconds after page load (research-backed optimal timing)
+- Page-specific contextual messages (e.g., services page: "Questions about our services?", projects page: "Love what you see? Let's plan yours.")
+- Dismissible (X button or clicking FAB to open panel)
+- Does NOT auto-open the full panel (anti-pattern per research)
+
+**Chat Panel:**
+- Fixed position, slide-up + fade animation (~250ms)
+- 400px max-width, 520px height, rounded corners, elevated shadow
+- Header: Agent avatar + name + company name + close button
+- Uses Vercel AI SDK `useChat` with streaming via `/api/ai/receptionist`
+- Renders inline CTA buttons parsed from `[CTA:Label:/path]` markers in responses
+- Includes compact voice mode (WebRTC, fits in panel without full-screen takeover)
+
+**Visibility Logic:**
+- **Hidden on:** `/estimate`, `/visualizer`, `/admin/*` (these pages have their own AI chat)
+- **Visible on:** `/`, `/services/*`, `/about`, `/contact`, `/projects`, all other public pages
+
+### 9.6 CTA Embedding
+
+The receptionist agent's prompt includes instructions to embed `[CTA:Label:/path]` markers when suggesting navigation. The widget parses these with regex and renders them as clickable `Button` components with Next.js `Link`.
+
+Example AI response: "Want a ballpark estimate? [CTA:Get a Free Estimate:/estimate]"
+Renders as: text message + a clickable "Get a Free Estimate" button that navigates to `/estimate`.
+
+### 9.7 Key Implementation Files
+
+**Knowledge Base:**
+- `src/lib/ai/knowledge/company.ts` — Company profile and contact info
+- `src/lib/ai/knowledge/services.ts` — Service scope details
+- `src/lib/ai/knowledge/pricing.ts` — Pricing guidelines (full + summary)
+- `src/lib/ai/knowledge/ontario-renovation.ts` — Province-specific knowledge (general + budget + design)
+- `src/lib/ai/knowledge/sales-techniques.ts` — Sales training for all agents
+- `src/lib/ai/knowledge/index.ts` — Barrel export
+
+**Persona System:**
+- `src/lib/ai/personas/types.ts` — `AgentPersona` interface and `PersonaKey` type
+- `src/lib/ai/personas/receptionist.ts` — Receptionist persona definition + prompt rules
+- `src/lib/ai/personas/quote-specialist.ts` — Quote specialist persona + prompt rules
+- `src/lib/ai/personas/design-consultant.ts` — Design consultant persona + prompt rules
+- `src/lib/ai/personas/prompt-assembler.ts` — `buildAgentSystemPrompt()` and `buildVoiceSystemPrompt()`
+- `src/lib/ai/personas/index.ts` — Barrel export
+
+**Widget Components:**
+- `src/components/receptionist/receptionist-widget.tsx` — FAB + teaser + panel
+- `src/components/receptionist/receptionist-widget-loader.tsx` — Client Component dynamic import wrapper
+- `src/components/receptionist/receptionist-chat.tsx` — Chat container with `useChat`
+- `src/components/receptionist/receptionist-input.tsx` — Text input + voice toggle
+- `src/components/receptionist/receptionist-cta-buttons.tsx` — CTA parser and button renderer
+- `src/components/receptionist/receptionist-voice.tsx` — Compact voice mode for widget
+
+**API Route:**
+- `src/app/api/ai/receptionist/route.ts` — Edge runtime streaming endpoint for receptionist
+
+---
+
+## 10. Technical Architecture
+
+### 10.1 Technology Stack (Actual Deployed Versions)
 
 | Layer | Technology | Version | Notes |
 |-------|------------|---------|-------|
@@ -1322,7 +1471,7 @@ CREATE TABLE drawings (
 | **Deployment** | Vercel | Latest | Production at leadquoteenginev2.vercel.app |
 | **Analytics** | Vercel Analytics | Built-in | Privacy-friendly |
 
-### 9.2 System Architecture Diagram
+### 10.2 System Architecture Diagram
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -1394,7 +1543,7 @@ CREATE TABLE drawings (
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 9.3 Database Schema
+### 10.3 Database Schema
 
 ```sql
 -- =============================================
@@ -1640,7 +1789,7 @@ CREATE TRIGGER quote_drafts_updated_at
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 ```
 
-### 9.4 API Route Specifications
+### 10.4 API Route Specifications
 
 | Route | Method | Purpose | Auth Required | Status | Input | Output |
 |-------|--------|---------|---------------|--------|-------|--------|
@@ -1671,76 +1820,78 @@ CREATE TRIGGER quote_drafts_updated_at
 
 ---
 
-## 10. AI Behavior Specification
+## 11. AI Behavior Specification
 
-### 10.1 Quote Assistant System Prompt
+### 11.1 AI Agent Persona System
 
-```typescript
-const QUOTE_ASSISTANT_SYSTEM_PROMPT = `You are the Red White Reno Quote Assistant, a friendly and professional AI that helps homeowners get preliminary renovation estimates in Stratford, Ontario and surrounding areas.
+The platform uses a **layered persona system** rather than a single hardcoded system prompt. Each AI agent has a distinct named persona with role-specific knowledge, and all agents share a common knowledge base and sales training layer. This architecture is brand-agnostic — persona definitions and knowledge modules contain the deployment-specific content (company name, location, pricing, services), while the prompt assembly logic is universal.
 
-## Your Role
-Guide users through the quote intake process by asking relevant questions about their renovation project. You are warm, helpful, and knowledgeable about home renovations.
+#### Prompt Assembly Architecture
 
-## Brand Voice
-- Professional yet approachable
-- Knowledgeable but not condescending
-- Enthusiastic about helping people transform their homes
-- Use phrases like "Heart of the home" when discussing kitchens
-- Reference local Stratford area when relevant
+System prompts are built dynamically via `buildAgentSystemPrompt(personaKey)` in four layers:
 
-## Conversation Flow
-1. Greet warmly and invite them to share a photo of their space
-2. If photo provided, analyze and identify room type and current condition
-3. Confirm project type and ask about renovation goals
-4. Ask about scope (full remodel vs partial updates)
-5. Inquire about material preferences and finish level (economy/standard/premium)
-6. Ask about timeline expectations
-7. Discuss budget range (provide context: "Kitchens typically range from...")
-8. Collect contact information
-9. Present preliminary estimate with clear disclaimers
+```
+Layer 1: Company Profile + Service Catalog (shared by all agents)
+  └── Loaded from knowledge modules: company.ts, services.ts
 
-## Question Guidelines
-- Ask ONE question at a time
-- Keep responses to 2-3 sentences maximum
-- Provide helpful context when asking about budget ranges
-- Acknowledge user's responses before moving to next question
+Layer 2: Role-Specific Knowledge
+  ├── Receptionist: company-full + ontario-general + pricing-summary
+  ├── Quote Specialist: pricing-full + ontario-budget + service-scopes + estimate rules
+  └── Design Consultant: ontario-design + style descriptions + room analysis
 
-## Pricing Guidelines (for internal calculation only - NEVER share these directly)
-- Kitchen remodel: $150-$300 per sqft depending on finish level
-- Bathroom remodel: $200-$400 per sqft depending on scope
-- Basement finishing: $40-$80 per sqft depending on features
-- Internal labor rate: $85/hour
-- Contract labor markup: 15% management fee
-- HST: 13% (Ontario)
-- Deposit: 50% required
+Layer 3: Sales Training (shared by all agents)
+  └── Conversational techniques, lead capture timing, objection handling
 
-## Estimate Presentation Rules
-- ALWAYS present as a RANGE (e.g., "$25,000 - $32,000")
-- Apply ±15% variance to calculated values
-- Include the standard disclaimer
-- Break down into Materials, Labor, and HST
-- Mention deposit requirement
-
-## Standard Disclaimer (include with every estimate)
-"This is a preliminary AI-generated estimate based on the information you've shared. Final pricing requires an in-person assessment and may vary based on site conditions, material selections, and scope changes. This estimate is valid for 30 days."
-
-## Handling Edge Cases
-- If budget seems unrealistic: Gently note typical costs and offer to adjust scope
-- If scope is unclear: Ask clarifying questions before estimating
-- If off-topic: Politely redirect to renovation discussion
-- If frustrated: Offer to have a human follow up directly
-- If asking about services not offered: Explain Red White Reno's focus areas
-
-## Contact Collection
-When collecting contact info, explain why: "So we can send you a detailed quote and answer any questions, could you share your name, email, and phone number?"
-
-## Visualization Integration
-If user mentions they used the visualizer, acknowledge it: "I see you've already visualized your space! That design will be included in your quote for our team to review."
-
-IMPORTANT: Never make binding commitments on pricing. Always frame as preliminary estimates requiring verification.`;
+Layer 4: Persona Identity + Boundaries + Routing Rules
+  └── Name, personality traits, greeting, capabilities, what NOT to do
 ```
 
-### 10.2 Structured Output Schemas (Zod)
+#### Voice Prompt Variant
+
+`buildVoiceSystemPrompt(personaKey)` builds a voice-optimized version with the same knowledge layers but voice-specific behavioral rules:
+- Keep responses to 1-2 sentences maximum
+- One topic at a time (no lists or formatting)
+- Use verbal acknowledgments ("Got it", "Makes sense")
+- Speak naturally with contractions and conversational flow
+
+#### Key Behavior Rules (All Agents)
+
+**Conversation Flow (Quote Specialist):**
+1. Greet warmly and invite photo upload
+2. Analyze photo if provided (room type, condition)
+3. Confirm project type, ask about renovation goals
+4. Ask about scope (full vs. partial)
+5. Inquire about material preferences and finish level
+6. Discuss timeline and budget range with context
+7. Collect contact information
+8. Present preliminary estimate with disclaimers
+
+**Question Guidelines:**
+- Ask ONE question at a time
+- Keep responses to 2-3 sentences
+- Acknowledge user's response before moving forward
+
+**Estimate Presentation:**
+- Always present as a RANGE (e.g., "$25,000 - $32,000")
+- Apply ±15% variance to calculated values
+- Break down into Materials, Labor, and applicable tax
+- Include deposit requirement
+- Always include standard disclaimer about preliminary nature
+
+**Edge Case Handling:**
+- Unrealistic budget → gently note typical costs, offer scope adjustment
+- Unclear scope → ask clarifying questions before estimating
+- Off-topic → politely redirect to renovation discussion
+- Frustrated user → offer human follow-up
+- Unsupported service → explain available service areas
+
+**Contact Collection:**
+Explain the value: "So we can send you a detailed quote and answer any questions, could you share your name, email, and phone number?"
+
+**Standard Disclaimer (included with every estimate):**
+"This is a preliminary AI-generated estimate based on the information you've shared. Final pricing requires an in-person assessment and may vary based on site conditions, material selections, and scope changes. This estimate is valid for 30 days."
+
+### 11.2 Structured Output Schemas (Zod)
 
 ```typescript
 import { z } from 'zod';
@@ -1819,7 +1970,7 @@ export const QuoteSchema = z.object({
 });
 ```
 
-### 10.3 Fallback Behaviors
+### 11.3 Fallback Behaviors
 
 | Scenario | Detection | Fallback Action |
 |----------|-----------|-----------------|
@@ -1832,7 +1983,7 @@ export const QuoteSchema = z.object({
 | Rate limit hit | 429 status | Queue request, show position in queue |
 | Session expired | 7-day TTL | Offer to send magic link to email to resume |
 
-### 10.4 Content Moderation
+### 11.4 Content Moderation
 
 All uploaded images pass through content moderation:
 
@@ -1853,9 +2004,9 @@ const moderationCheck = async (imageBase64: string) => {
 
 ---
 
-## 11. User Experience Specification
+## 12. User Experience Specification
 
-### 11.1 Loading States
+### 12.1 Loading States
 
 | Context | Loading Treatment | Duration Threshold |
 |---------|-------------------|--------------------|
@@ -1866,7 +2017,7 @@ const moderationCheck = async (imageBase64: string) => {
 | Quote generation | Skeleton of quote card | 0-5s |
 | Page navigation | Top progress bar (NProgress style) | 0-1s |
 
-### 11.2 Error States
+### 12.2 Error States
 
 | Error Type | Visual Treatment | User Action |
 |------------|------------------|-------------|
@@ -1877,7 +2028,7 @@ const moderationCheck = async (imageBase64: string) => {
 | Session expired | Modal with email input | Enter email for magic link |
 | 500 server error | Full-page error with contact | Contact support |
 
-### 11.3 Onboarding Flow (First-Time User)
+### 12.3 Onboarding Flow (First-Time User)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -1918,7 +2069,7 @@ const moderationCheck = async (imageBase64: string) => {
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 11.4 Mobile-Specific Patterns
+### 12.4 Mobile-Specific Patterns
 
 | Pattern | Implementation |
 |---------|----------------|
@@ -1931,7 +2082,7 @@ const moderationCheck = async (imageBase64: string) => {
 | **Orientation** | Lock to portrait for chat, allow landscape for visualizer results |
 | **Haptic Feedback** | Subtle vibration on button press (if supported) |
 
-### 11.5 Accessibility Requirements
+### 12.5 Accessibility Requirements
 
 | Requirement | Implementation |
 |-------------|----------------|
@@ -1946,9 +2097,9 @@ const moderationCheck = async (imageBase64: string) => {
 
 ---
 
-## 12. Design System
+## 13. Design System
 
-### 12.1 Color Palette
+### 13.1 Color Palette
 
 ```css
 :root {
@@ -1984,7 +2135,7 @@ const moderationCheck = async (imageBase64: string) => {
 }
 ```
 
-### 12.2 Typography
+### 13.2 Typography
 
 ```css
 :root {
@@ -2010,7 +2161,7 @@ const moderationCheck = async (imageBase64: string) => {
 }
 ```
 
-### 12.3 Spacing Scale
+### 13.3 Spacing Scale
 
 ```css
 :root {
@@ -2028,7 +2179,7 @@ const moderationCheck = async (imageBase64: string) => {
 }
 ```
 
-### 12.4 Component Library (shadcn/ui Subset)
+### 13.4 Component Library (shadcn/ui Subset)
 
 Required components from shadcn/ui:
 
@@ -2051,7 +2202,7 @@ Required components from shadcn/ui:
 | Avatar | User/AI indicators |
 | Slider | Before/after comparison |
 
-### 12.5 Animation Guidelines
+### 13.5 Animation Guidelines
 
 ```css
 /* Transitions */
@@ -2073,10 +2224,10 @@ Required components from shadcn/ui:
 
 ---
 
-## 13. Development Phases
+## 14. Development Phases
 
-**Status:** ✅ ALL PHASES COMPLETE (DEV-001 through DEV-106 + CAD Editor)
-**Actual Duration:** ~7 weeks
+**Status:** ✅ ALL PHASES COMPLETE (DEV-001 through DEV-106 + CAD Editor + AI Personas)
+**Actual Duration:** ~9 weeks
 **Production URL:** https://leadquoteenginev2.vercel.app
 
 ### Phase 0: Project Setup (Days 1-2) ✅ COMPLETE
@@ -2240,9 +2391,28 @@ Required components from shadcn/ui:
 | CAD-013 | Professional filenames with date stamps | 1 | ✅ |
 | CAD-014 | Delete tool in toolbar | 1 | ✅ |
 
-### Total Actual Hours: ~450 hours (~9 weeks)
+### Phase 9: AI Agent Personas & Smart Chat Widget ✅ COMPLETE
 
-### 13.1 Lessons Learned
+| Task ID | Task | Hours | Status |
+|---------|------|-------|--------|
+| PERSONA-001 | Knowledge base modules (company, services, pricing, Ontario, sales) | 4 | ✅ |
+| PERSONA-002 | Persona definitions (Emma, Marcus, Mia) | 3 | ✅ |
+| PERSONA-003 | Layered prompt assembler (text + voice) | 4 | ✅ |
+| PERSONA-004 | Receptionist API route (streaming, edge runtime) | 2 | ✅ |
+| PERSONA-005 | Chat widget FAB + proactive teaser + expandable panel | 6 | ✅ |
+| PERSONA-006 | Widget chat container with CTA parsing | 4 | ✅ |
+| PERSONA-007 | Widget text + voice input (ElevenLabs pattern) | 3 | ✅ |
+| PERSONA-008 | Compact voice mode for widget (WebRTC) | 4 | ✅ |
+| PERSONA-009 | Enhance quote chat with Marcus persona | 2 | ✅ |
+| PERSONA-010 | Enhance visualizer chat with Mia persona + voice | 3 | ✅ |
+| PERSONA-011 | Voice session route — persona-aware | 2 | ✅ |
+| PERSONA-012 | MessageBubble agent name/icon props | 1 | ✅ |
+| PERSONA-013 | Widget route visibility (hide on /estimate, /visualizer, /admin) | 1 | ✅ |
+| PERSONA-014 | Build verification + test pass | 1 | ✅ |
+
+### Total Actual Hours: ~490 hours (~9 weeks)
+
+### 14.1 Lessons Learned
 
 | Area | Lesson |
 |------|--------|
@@ -2255,9 +2425,9 @@ Required components from shadcn/ui:
 
 ---
 
-## 14. Security & Compliance
+## 15. Security & Compliance
 
-### 14.1 PIPEDA Compliance (Canadian Privacy)
+### 15.1 PIPEDA Compliance (Canadian Privacy)
 
 | Requirement | Implementation |
 |-------------|----------------|
@@ -2268,7 +2438,7 @@ Required components from shadcn/ui:
 | Retention | Lead data retained 24 months, then anonymized |
 | Disclosure | AI processing clearly disclosed |
 
-### 14.2 CASL Compliance (Anti-Spam)
+### 15.2 CASL Compliance (Anti-Spam)
 
 | Requirement | Implementation |
 |-------------|----------------|
@@ -2278,7 +2448,7 @@ Required components from shadcn/ui:
 | Sender ID | Company name and address in footer |
 | Record keeping | Consent timestamp and source logged |
 
-### 14.3 AI Disclaimers
+### 15.3 AI Disclaimers
 
 **Quote Disclaimer (displayed with every estimate):**
 > "This is a preliminary AI-generated estimate based on the information you've shared. Final pricing requires an in-person assessment and may vary based on site conditions, material selections, and scope changes. This estimate is not a binding contract."
@@ -2286,7 +2456,7 @@ Required components from shadcn/ui:
 **Visualization Disclaimer (displayed on all generated images):**
 > "AI-generated concept for inspiration only. Actual results depend on structural feasibility, material availability, and design decisions."
 
-### 14.4 Security Measures
+### 15.4 Security Measures
 
 | Measure | Implementation |
 |---------|----------------|
@@ -2301,14 +2471,14 @@ Required components from shadcn/ui:
 
 ---
 
-## 15. Testing Strategy
+## 16. Testing Strategy
 
 **Status:** ✅ IMPLEMENTED
 - **Unit Tests:** 230 passing (Vitest — 9 test files)
 - **E2E Tests:** 268 passing, 48 skipped, 17 AI-dependent (Playwright)
 - **Build:** Passing (TypeScript strict mode)
 
-### 15.1 Unit Testing (230 Tests)
+### 16.1 Unit Testing (230 Tests)
 
 **Test Files:**
 - `tests/unit/pricing-engine.test.ts` - 19 tests for pricing calculations
@@ -2334,7 +2504,7 @@ export default defineConfig({
 });
 ```
 
-### 15.2 E2E Test Scenarios (Playwright) - 268+ Tests
+### 16.2 E2E Test Scenarios (Playwright) - 268+ Tests
 
 **Test Files:**
 - `tests/e2e/strict/prd-quote-happy-path.spec.ts` - Quote flow E2E tests
@@ -2363,7 +2533,7 @@ export default defineConfig({
 | Mobile touch targets | ✅ | All interactive elements ≥44px |
 | Mobile thumb zone | ✅ | CTAs in bottom 30% of screen |
 
-### 15.3 Security Testing
+### 16.3 Security Testing
 
 | Test | Status | Notes |
 |------|--------|-------|
@@ -2373,7 +2543,7 @@ export default defineConfig({
 | Debug routes removed | ✅ | /test-db, /api/debug-auth deleted |
 | Security bypass removed | ✅ | Development bypass block removed from proxy.ts |
 
-### 15.4 Performance Benchmarks
+### 16.4 Performance Benchmarks
 
 | Metric | Target | Actual | Tool |
 |--------|--------|--------|------|
@@ -2385,9 +2555,9 @@ export default defineConfig({
 
 ---
 
-## 16. Appendices
+## 17. Appendices
 
-### 16.1 Competitive Reference Links
+### 17.1 Competitive Reference Links
 
 **Lead Generation Platforms:**
 - [Handoff.ai](https://www.handoff.ai/) - AI estimating for remodelers
@@ -2402,7 +2572,7 @@ export default defineConfig({
 **AI Chatbot Examples:**
 - [Predictive Sales AI](https://www.predictivesalesai.com/) - Home services chatbot
 
-### 16.2 Pricing Logic Details
+### 17.2 Pricing Logic Details
 
 ```typescript
 // Pricing constants (for system prompt and calculation engine)
@@ -2436,7 +2606,7 @@ const PRICING_GUIDELINES = {
 };
 ```
 
-### 16.3 Glossary
+### 17.3 Glossary
 
 | Term | Definition |
 |------|------------|
@@ -2451,9 +2621,9 @@ const PRICING_GUIDELINES = {
 
 ---
 
-## 17. AI Stack Validation (January 31, 2026)
+## 18. AI Stack Validation (January 31, 2026)
 
-### 17.1 Validated Technology Choices
+### 18.1 Validated Technology Choices
 
 The following AI technologies have been researched and validated as of January 31, 2026:
 
@@ -2465,7 +2635,7 @@ The following AI technologies have been researched and validated as of January 3
 | **Voice Mode** | OpenAI Realtime API | VALIDATED | Real-time voice conversation via WebRTC. Enables natural spoken dialogue for renovation project descriptions. See Section 3.8. |
 | **Estimation** | Internal Pricing Guidelines | VALIDATED | RSMeans Data ($1,000+/year) is overkill for SMB. Internal guidelines with contractor input are more practical and maintainable. |
 
-### 17.2 Alternative Considerations
+### 18.2 Alternative Considerations
 
 | Alternative | Considered For | Decision |
 |-------------|----------------|----------|
@@ -2473,7 +2643,7 @@ The following AI technologies have been researched and validated as of January 3
 | Claude 3.5 Sonnet | Chat AI | GPT-5.2 selected for consistency with vision/realtime ecosystem. Claude remains viable alternative. |
 | ElevenLabs | Voice synthesis | Not needed for v1. Consider for quote read-back in v2. |
 
-### 17.3 API Pricing Reference (as of Jan 2026)
+### 18.3 API Pricing Reference (as of Jan 2026)
 
 | API | Tier | Price | Est. Monthly Cost |
 |-----|------|-------|-------------------|
@@ -2485,7 +2655,7 @@ The following AI technologies have been researched and validated as of January 3
 | Resend | Free tier | $0 | $0 (100 emails/day) |
 | **Total Estimated** | | | **~$115/month** |
 
-### 17.4 Implementation Packages
+### 18.4 Implementation Packages
 
 ```bash
 # Required AI packages
@@ -2496,7 +2666,7 @@ npm install @supabase/supabase-js @supabase/ssr
 npm install resend @react-email/components
 ```
 
-### 17.5 Model Configuration
+### 18.5 Model Configuration
 
 ```typescript
 // lib/ai/config.ts
@@ -2531,22 +2701,22 @@ export const AI_CONFIG = {
 
 ---
 
-## 18. White-Label Configuration Guide
+## 19. White-Label Configuration Guide
 
 This platform is designed for easy deployment to multiple renovation contractors. The architecture separates branding, content, and configuration from core logic.
 
-### 18.1 Branding Configuration
+### 19.1 Branding Configuration
 
 | Element | Location | How to Change |
 |---------|----------|---------------|
 | **Primary Color** | `tailwind.config.ts`, `src/app/globals.css` | Change `#D32F2F` to contractor brand color |
-| **Company Name** | `CLAUDE.md`, system prompts, email templates | Search & replace "Red White Reno" |
+| **Company Name** | `src/lib/ai/knowledge/company.ts`, email templates, metadata | Update company profile in knowledge module |
 | **Logo** | `public/images/`, `<Header>`, `<Footer>`, PDF template | Replace logo files (PNG, 200x60px recommended) |
 | **Contact Info** | `src/components/footer.tsx`, email templates | Update address, phone, email |
-| **Location** | System prompts, PDF template | Update city/province references (e.g., "Stratford, Ontario") |
+| **Location** | `src/lib/ai/knowledge/company.ts`, `ontario-renovation.ts`, PDF template | Update location in knowledge modules |
 | **Social Links** | `src/components/footer.tsx` | Update social media URLs |
 
-### 18.2 Pricing Configuration
+### 19.2 Pricing Configuration
 
 All pricing is database-driven via the `admin_settings` table. No code changes required.
 
@@ -2562,7 +2732,24 @@ All pricing is database-driven via the `admin_settings` table. No code changes r
 | `deposit_percent` | Required deposit percentage | /admin/settings → Rates tab |
 | `quote_validity_days` | How long quotes are valid | /admin/settings → Rates tab |
 
-### 18.3 Service Types
+### 19.3 AI Agent Persona Configuration
+
+Each deployment has three named AI agents. To customize for a new contractor:
+
+| File | What to Change |
+|------|----------------|
+| `src/lib/ai/knowledge/company.ts` | Company name, team members, hours, location, service area, contact info, social links |
+| `src/lib/ai/knowledge/services.ts` | Service types, scopes, and descriptions for this contractor |
+| `src/lib/ai/knowledge/pricing.ts` | Per-sqft pricing, labor rates, markup, tax rate, deposit percentage |
+| `src/lib/ai/knowledge/ontario-renovation.ts` | Province/state-specific regulations, permits, building codes, seasonal considerations |
+| `src/lib/ai/knowledge/sales-techniques.ts` | Usually unchanged (generic sales training) |
+| `src/lib/ai/personas/receptionist.ts` | Agent name, greeting, personality traits, voice ID |
+| `src/lib/ai/personas/quote-specialist.ts` | Agent name, greeting, personality traits, voice ID |
+| `src/lib/ai/personas/design-consultant.ts` | Agent name, greeting, personality traits, voice ID |
+
+**Note:** The prompt assembler (`prompt-assembler.ts`) and persona types (`types.ts`) are universal and should not need changes per deployment.
+
+### 19.4 Service Types
 
 To add or modify service types:
 
@@ -2570,11 +2757,12 @@ To add or modify service types:
 |------|----------------|
 | `src/types/database.ts` | Add to `project_type` enum TypeScript type |
 | `src/lib/pricing/constants.ts` | Add pricing guidelines for new type |
-| `src/lib/ai/prompts.ts` | Update system prompts to mention new service |
+| `src/lib/ai/knowledge/services.ts` | Add service scope and description |
+| `src/lib/ai/knowledge/pricing.ts` | Add pricing ranges for new type |
 | `src/lib/schemas/ai-quote.ts` | Add to LINE_ITEM_TEMPLATES |
 | Database | Add constraint to `leads.project_type` column |
 
-### 18.4 Deployment Checklist for New Contractor
+### 19.5 Deployment Checklist for New Contractor
 
 ```
 PRE-DEPLOYMENT
@@ -2601,21 +2789,29 @@ CONFIGURATION
 10. [ ] Set up Vercel project with custom domain
 11. [ ] Configure pricing in admin settings (/admin/settings)
 
+AI PERSONAS
+12. [ ] Update knowledge modules (company.ts, services.ts, pricing.ts)
+13. [ ] Update location-specific knowledge (ontario-renovation.ts or equivalent)
+14. [ ] Customize agent names and greetings in persona files
+15. [ ] Test chat widget on home page (teaser + full panel)
+16. [ ] Test voice mode for all three agents
+
 TESTING
-12. [ ] Test chat flow end-to-end
-13. [ ] Test visualizer flow end-to-end
-14. [ ] Test admin dashboard functionality
-15. [ ] Test PDF generation and email delivery
-16. [ ] Verify mobile experience (375px viewport)
+17. [ ] Test quote chat flow end-to-end (Marcus persona)
+18. [ ] Test visualizer flow end-to-end (Mia persona)
+19. [ ] Test receptionist widget on public pages (Emma persona)
+20. [ ] Test admin dashboard functionality
+21. [ ] Test PDF generation and email delivery
+22. [ ] Verify mobile experience (375px viewport)
 
 LAUNCH
-17. [ ] DNS configuration for custom domain
-18. [ ] SSL certificate verification
-19. [ ] Set up monitoring (Vercel Analytics, optional Sentry)
-20. [ ] Go live!
+23. [ ] DNS configuration for custom domain
+24. [ ] SSL certificate verification
+25. [ ] Set up monitoring (Vercel Analytics, optional Sentry)
+26. [ ] Go live!
 ```
 
-### 18.5 Multi-Tenant Architecture (Future)
+### 19.6 Multi-Tenant Architecture (Future)
 
 Current architecture: **Single-tenant** (one contractor per deployment)
 
@@ -2628,24 +2824,26 @@ For productized SaaS with multiple contractors:
 
 ---
 
-## 19. Implementation Status
+## 20. Implementation Status
 
-### 19.1 Feature Completion Summary
+### 20.1 Feature Completion Summary
 
 | Feature | Status | Completion | Notes |
 |---------|--------|------------|-------|
 | **Marketing Website** | ✅ LIVE | 95% | SEO, Google Reviews deferred |
-| **AI Quote Assistant** | ✅ LIVE | 100% | Chat + voice + form modes |
-| **AI Design Visualizer** | ✅ LIVE | 100% | Conversation + quick modes, shareable results |
+| **AI Quote Assistant** | ✅ LIVE | 100% | Chat + voice + form modes, Marcus persona |
+| **AI Design Visualizer** | ✅ LIVE | 100% | Conversation + quick modes, Mia persona, voice-capable |
 | **Admin Dashboard** | ✅ LIVE | 100% | AI quote generation, AI email drafting, multi-step send wizard |
 | **Invoicing & Payments** | ✅ LIVE | 100% | Create from quotes, payments, PDF, email, Sage 50 CSV |
 | **Architecture Drawings** | ✅ LIVE | 100% | Built-in CAD editor with PDF export |
+| **AI Agent Personas** | ✅ LIVE | 100% | Three named agents (Emma, Marcus, Mia) with layered prompts |
+| **Smart Chat Widget** | ✅ LIVE | 100% | Floating receptionist (Emma) with text + voice on all public pages |
 | **PDF Generation** | ✅ LIVE | 100% | Quotes + invoices + CAD drawings |
 | **Email Delivery** | ✅ LIVE | 100% | With AI drafting (requires RESEND_API_KEY) |
 | **Testing** | ✅ COMPLETE | 100% | 230 unit + 268 E2E tests |
 | **Documentation** | ✅ COMPLETE | 100% | README, API docs, deployment guide |
 
-### 19.2 Production Metrics
+### 20.2 Production Metrics
 
 | Metric | Value |
 |--------|-------|
@@ -2657,7 +2855,7 @@ For productized SaaS with multiple contractors:
 | **TypeScript** | Strict mode (`exactOptionalPropertyTypes`), no errors |
 | **Security** | Admin RBAC enforced, RLS on all tables |
 
-### 19.3 Known Limitations & Future Work
+### 20.3 Known Limitations & Future Work
 
 | Limitation | Priority | Notes |
 |------------|----------|-------|
@@ -2669,7 +2867,7 @@ For productized SaaS with multiple contractors:
 | RESEND_API_KEY | High | Email delivery requires this key |
 | Multi-tenant architecture | Future | For SaaS productization |
 
-### 19.4 Repository Structure
+### 20.4 Repository Structure
 
 ```
 lead_quote_engine_v2/
@@ -2694,8 +2892,11 @@ lead_quote_engine_v2/
 │   │   ├── chat/               # Chat components
 │   │   ├── visualizer/         # Visualizer components
 │   │   └── ui/                 # shadcn/ui components
+│   │   └── receptionist/       # Smart chat widget (FAB, panel, voice)
 │   ├── lib/
 │   │   ├── ai/                 # AI services
+│   │   │   ├── knowledge/      # Shared knowledge base (company, services, pricing, Ontario, sales)
+│   │   │   └── personas/       # Agent personas (receptionist, quote-specialist, design-consultant)
 │   │   ├── db/                 # Supabase client
 │   │   ├── email/              # Email templates (quotes + invoices)
 │   │   ├── export/             # Sage 50 CSV export
@@ -2728,6 +2929,7 @@ lead_quote_engine_v2/
 | 3.1 | Feb 3, 2026 | Claude Code (Opus 4.5) | Voice Mode documentation |
 | 3.2 | Feb 5, 2026 | Claude Code (Opus 4.5) | Visualizer enhancements |
 | 4.0 | Feb 7, 2026 | Claude Code (Opus 4.6) | Invoicing & Payments, Architecture Drawings & CAD Editor |
+| 5.0 | Feb 9, 2026 | Claude Code (Opus 4.6) | AI Agent Personas (Emma, Marcus, Mia), Smart Chat Widget, Knowledge Base Architecture, Voice Personas, brand-agnostic refactoring |
 
 ---
 

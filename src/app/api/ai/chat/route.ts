@@ -1,7 +1,7 @@
 import { streamText, type UserModelMessage, type AssistantModelMessage } from 'ai';
 import { openai } from '@/lib/ai/providers';
 import { AI_CONFIG } from '@/lib/ai/config';
-import { QUOTE_ASSISTANT_SYSTEM_PROMPT } from '@/lib/ai/prompts';
+import { buildAgentSystemPrompt } from '@/lib/ai/personas';
 
 export const runtime = 'edge';
 
@@ -83,7 +83,7 @@ export async function POST(req: Request) {
 
     const result = streamText({
       model: openai(AI_CONFIG.openai.chat),
-      system: QUOTE_ASSISTANT_SYSTEM_PROMPT,
+      system: buildAgentSystemPrompt('quote-specialist'),
       messages: formattedMessages,
       maxOutputTokens: AI_CONFIG.parameters.chat.maxTokens,
       temperature: AI_CONFIG.parameters.chat.temperature,

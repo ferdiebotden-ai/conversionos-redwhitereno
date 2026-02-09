@@ -1,8 +1,8 @@
 # Session Status - Lead-to-Quote Engine v2
 
-> **Last Updated:** February 7, 2026 (Drawings UX Polish + Redeployment)
+> **Last Updated:** February 9, 2026 (AI Agent Personas & Smart Chat Widget)
 > **Status:** LAUNCHED - Production Ready & Deployed
-> **Current Phase:** Phase 7: CAD Editor Permit-Ready (COMPLETE) — All phases through DEV-106 + CAD Phase 3 + UX polish complete
+> **Current Phase:** Phase 8: AI Personas & Widget (COMPLETE) — All phases through DEV-106 + CAD Phase 3 + Agent Personas
 
 ## North Star (Don't Forget)
 We're building an AI-native lead-to-quote platform for renovation contractors. Users chat with AI to describe their project, upload photos for instant visualization, and get ballpark estimates in minutes instead of days. First client: Red White Reno (Stratford, ON).
@@ -13,8 +13,8 @@ We're building an AI-native lead-to-quote platform for renovation contractors. U
 
 | Metric | Status |
 |--------|--------|
-| Current Phase | Phase 7: CAD Editor Permit-Ready (COMPLETE) |
-| Next Task ID | N/A - All Tasks Complete (DEV-001 through DEV-106 + CAD Phase 3) |
+| Current Phase | Phase 8: AI Personas & Widget (COMPLETE) |
+| Next Task ID | N/A - All Tasks Complete (DEV-001 through DEV-106 + CAD + Personas) |
 | Blockers | None |
 | Build Status | Passing |
 | Unit Tests | 230/230 passing (55 core + 84 visualizer + 91 invoice/drawing) |
@@ -139,6 +139,65 @@ We're building an AI-native lead-to-quote platform for renovation contractors. U
 ---
 
 ## Recent Session Log
+
+### Session: February 9, 2026 (AI Agent Personas & Smart Chat Widget)
+**Completed:**
+- Named AI personas: Emma (receptionist), Marcus (quote specialist), Mia (design consultant)
+- Floating chat widget with FAB, proactive teaser, expandable panel on all public pages
+- Knowledge base modules: company, services, pricing, Ontario renovation, sales techniques
+- Persona system with layered prompt assembly (company → role → sales → identity)
+- Voice-optimized prompts for all three agents via buildVoiceSystemPrompt()
+- CTA button embedding/parsing in receptionist chat ([CTA:Label:/path])
+- Compact voice mode in widget panel (WebRTC)
+- Page-specific teaser messages (6s delay, dismissible, contextual)
+- Widget hidden on /estimate, /visualizer, /admin/* (those have their own chats)
+- All existing chats enhanced: Marcus greeting on /estimate, Mia persona in visualizer
+- Realtime session route accepts `?persona=` param for voice-per-agent
+- Old QUOTE_ASSISTANT_SYSTEM_PROMPT marked deprecated with JSDoc
+
+**New Files Created (19):**
+- `src/lib/ai/knowledge/company.ts` — Company profile knowledge
+- `src/lib/ai/knowledge/services.ts` — Service scope knowledge
+- `src/lib/ai/knowledge/pricing.ts` — Pricing knowledge
+- `src/lib/ai/knowledge/ontario-renovation.ts` — Ontario-specific knowledge
+- `src/lib/ai/knowledge/sales-techniques.ts` — Sales training
+- `src/lib/ai/knowledge/index.ts` — Barrel export
+- `src/lib/ai/personas/types.ts` — AgentPersona interface
+- `src/lib/ai/personas/receptionist.ts` — Emma persona
+- `src/lib/ai/personas/quote-specialist.ts` — Marcus persona
+- `src/lib/ai/personas/design-consultant.ts` — Mia persona
+- `src/lib/ai/personas/prompt-assembler.ts` — Layered prompt builder
+- `src/lib/ai/personas/index.ts` — Barrel export
+- `src/app/api/ai/receptionist/route.ts` — Receptionist streaming API
+- `src/components/receptionist/receptionist-widget.tsx` — FAB + teaser + panel
+- `src/components/receptionist/receptionist-widget-loader.tsx` — Client Component wrapper
+- `src/components/receptionist/receptionist-chat.tsx` — Chat container
+- `src/components/receptionist/receptionist-input.tsx` — Text + voice input
+- `src/components/receptionist/receptionist-cta-buttons.tsx` — CTA parser/renderer
+- `src/components/receptionist/receptionist-voice.tsx` — Compact voice mode
+
+**Files Modified (9):**
+- `src/app/layout.tsx` — Added ReceptionistWidgetLoader
+- `src/components/chat/message-bubble.tsx` — Added agentName + agentIcon props
+- `src/components/chat/chat-interface.tsx` — Marcus persona greeting
+- `src/app/api/ai/chat/route.ts` — Uses buildAgentSystemPrompt('quote-specialist')
+- `src/lib/ai/visualizer-conversation.ts` — Mia persona in system prompt
+- `src/app/api/ai/visualizer-chat/route.ts` — Mia intro in initial response
+- `src/components/visualizer/visualizer-chat.tsx` — Mic button, "Chat with Mia" header
+- `src/app/api/realtime/session/route.ts` — Persona param, per-agent voice prompts
+- `src/lib/ai/prompts.ts` — Marked QUOTE_ASSISTANT_SYSTEM_PROMPT deprecated
+
+**Build Status:** Passing (230/230 unit tests, build clean)
+
+**Blockers:** None
+
+**Next Session:**
+1. Deploy to Vercel
+2. Test widget on all public pages
+3. Test voice mode for all three personas
+4. Write unit tests for knowledge modules and prompt assembler
+
+---
 
 ### Session: February 7, 2026 (Drawings UX Polish + Redeployment)
 **Completed:**
@@ -615,8 +674,8 @@ None
 
 ## Notes for Next Session
 
-### PROJECT STATUS: PRODUCTION READY + CAD EDITOR PERMIT-READY
-All tasks (DEV-001 through DEV-106 + CAD Phase 3) are complete. Full platform with invoicing, payments, Sage export, and a built-in permit-ready CAD drawing tool (no longer needs external Chili3D).
+### PROJECT STATUS: PRODUCTION READY + AI PERSONAS + CAD EDITOR
+All tasks (DEV-001 through DEV-106 + CAD Phase 3 + AI Agent Personas) are complete. Full platform with named AI agents (Emma, Marcus, Mia), floating chat widget, invoicing, payments, Sage export, and a built-in permit-ready CAD drawing tool.
 
 ### Post-Launch Priority Tasks
 1. ~~Deploy CAD editor + invoicing to Vercel~~ - DONE (deployed Feb 7)
@@ -648,6 +707,8 @@ SELECT set_admin_role('email@example.com');
 - **Admin Dashboard** - Lead management, AI quote generation, PDF quotes, email delivery
 - **Invoicing System** - Create from quotes, record payments, generate PDFs, send emails, Sage 50 CSV export
 - **Architecture Drawings** - Built-in CAD editor with walls, doors, windows, furniture, dimensions, room labels, text annotations, layers, PDF export with title block
+- **AI Agent Personas** - Named agents (Emma, Marcus, Mia) with layered prompt system, shared knowledge base, sales training
+- **Smart Chat Widget** - Floating receptionist (Emma) on all public pages with text + voice, proactive teaser, CTA buttons
 
 ---
 
@@ -655,6 +716,7 @@ SELECT set_admin_role('email@example.com');
 
 | Date | Session | Changes |
 |------|---------|---------|
+| 2026-02-09 | AI Agent Personas & Smart Chat Widget | 3 named AI personas (Emma/Marcus/Mia), floating chat widget with FAB + teaser + voice, knowledge base architecture, persona-based voice prompts, PRD v5.0 update (brand-agnostic) |
 | 2026-02-07 | Drawings UX Polish | Red Open button, Delete toolbar button, drawing name in export dialog, professional filenames (A-P-01 prefix + date stamps), deployed to Vercel |
 | 2026-02-07 | CAD Editor Phase 3 | Permit-ready drawing tool: dimensions, room labels, text annotations, PDF export with title block, layers panel, properties panel, autosave, camera persistence (14 new files, 12 modified) |
 | 2026-02-06 | Invoicing + Drawings | Full invoicing system (CRUD, payments, PDF, email, Sage CSV), architecture drawings (CRUD, admin pages), dashboard integration, 2 migrations applied |

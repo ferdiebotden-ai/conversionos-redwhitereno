@@ -55,7 +55,7 @@ interface ChatInterfaceProps {
   visualizationContext?: VisualizationContext | undefined;
 }
 
-const WELCOME_MESSAGE = "Hi! I'm your renovation assistant from Red White Reno. I'm here to help you get a preliminary estimate for your project.\n\nTo get started, you can upload a photo of your space, or just tell me what kind of renovation you're thinking about!";
+const WELCOME_MESSAGE = "Hey there! I'm Marcus, the budget and cost specialist here at Red White Reno. I help homeowners in the Stratford area understand what their renovation will cost — no surprises, no pressure.\n\nTell me about the space you're thinking of renovating, or snap a quick photo and I'll take a look!";
 
 // Map frontend timeline values to API enum values
 function mapTimelineToApi(timeline: string | undefined): string | undefined {
