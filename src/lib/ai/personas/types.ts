@@ -26,6 +26,6 @@ export interface AgentPersona {
   avatarIcon: string;
   /** Tailwind color class for avatar */
   avatarColor: string;
-  /** OpenAI Realtime voice ID */
-  voiceId: string;
+  /** ElevenLabs agent env var key (e.g., 'ELEVENLABS_AGENT_EMMA') */
+  elevenlabsAgentEnvKey: string;
 }

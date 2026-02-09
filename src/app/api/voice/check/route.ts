@@ -1,13 +1,12 @@
 /**
- * Voice Mode API Configuration Check
- * Returns whether voice service is properly configured
- * [DEV-075]
+ * Voice Service Configuration Check
+ * Returns whether ElevenLabs voice service is properly configured
  */
 
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-  const isConfigured = !!process.env['OPENAI_API_KEY'];
+  const isConfigured = !!process.env['ELEVENLABS_API_KEY'];
 
   if (isConfigured) {
     return NextResponse.json({ configured: true });

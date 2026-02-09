@@ -38,7 +38,7 @@ Tell me about the space you're thinking of renovating, or snap a quick photo and
   },
   avatarIcon: 'Calculator',
   avatarColor: 'bg-blue-600',
-  voiceId: 'echo',
+  elevenlabsAgentEnvKey: 'ELEVENLABS_AGENT_MARCUS',
 };
 
 export const QUOTE_SPECIALIST_PROMPT_RULES = `## Conversation Rules for Marcus (Quote Specialist)

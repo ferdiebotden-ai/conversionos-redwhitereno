@@ -2,25 +2,27 @@
 
 /**
  * Receptionist Input
- * Text input with voice toggle button for the receptionist widget
+ * Text input with inline TalkButton for the receptionist widget
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Send, Mic } from 'lucide-react';
+import { Send } from 'lucide-react';
+import { TalkButton } from '@/components/voice/talk-button';
+import type { PersonaKey } from '@/lib/ai/personas/types';
 
 interface ReceptionistInputProps {
   onSend: (message: string) => void;
-  onVoiceToggle: () => void;
   disabled?: boolean;
+  persona: PersonaKey;
   className?: string;
 }
 
 export function ReceptionistInput({
   onSend,
-  onVoiceToggle,
   disabled,
+  persona,
   className,
 }: ReceptionistInputProps) {
   const [value, setValue] = useState('');
@@ -67,16 +69,11 @@ export function ReceptionistInput({
         className="flex-1 resize-none bg-transparent text-sm placeholder:text-muted-foreground focus:outline-none min-h-[36px] max-h-[96px] py-2"
       />
       <div className="flex items-center gap-1 shrink-0">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9 text-muted-foreground hover:text-primary"
-          onClick={onVoiceToggle}
+        <TalkButton
+          persona={persona}
+          variant="inline"
           disabled={disabled}
-          aria-label="Switch to voice mode"
-        >
-          <Mic className="h-4 w-4" />
-        </Button>
+        />
         <Button
           size="icon"
           className="h-9 w-9 bg-primary hover:bg-primary/90"

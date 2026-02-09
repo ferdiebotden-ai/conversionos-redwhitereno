@@ -2,15 +2,16 @@
 
 /**
  * Receptionist Widget
- * Floating chat widget with FAB, proactive teaser, and expandable panel
+ * Floating chat widget with dual FABs (text + voice), proactive teaser, and expandable panel
  * Features Emma, the virtual receptionist
  */
 
 import { useState, useEffect, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { MessageCircle, X } from 'lucide-react';
+import { MessageCircle, X, Phone } from 'lucide-react';
 import { ReceptionistChat } from './receptionist-chat';
+import { VoiceProvider } from '@/components/voice/voice-provider';
 
 /** Pages where the widget is hidden (these have their own AI chat) */
 const HIDDEN_PATHS = ['/estimate', '/visualizer'];
@@ -34,6 +35,7 @@ const DEFAULT_TEASER = 'Hi! I\'m Emma. Need help with a renovation project?';
 export function ReceptionistWidget() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [startInVoiceMode, setStartInVoiceMode] = useState(false);
   const [showTeaser, setShowTeaser] = useState(false);
   const [teaserDismissed, setTeaserDismissed] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
@@ -61,8 +63,16 @@ export function ReceptionistWidget() {
     return () => clearTimeout(timer);
   }, [hasAnimated]);
 
-  const handleFABClick = useCallback(() => {
+  const handleChatFABClick = useCallback(() => {
+    setStartInVoiceMode(false);
     setIsOpen(prev => !prev);
+    setShowTeaser(false);
+    setTeaserDismissed(true);
+  }, []);
+
+  const handleVoiceFABClick = useCallback(() => {
+    setStartInVoiceMode(true);
+    setIsOpen(true);
     setShowTeaser(false);
     setTeaserDismissed(true);
   }, []);
@@ -110,9 +120,11 @@ export function ReceptionistWidget() {
             </button>
           </div>
 
-          {/* Chat Content */}
+          {/* Chat Content — wrapped in VoiceProvider */}
           <div className="flex-1 min-h-0">
-            <ReceptionistChat />
+            <VoiceProvider>
+              <ReceptionistChat startInVoiceMode={startInVoiceMode} />
+            </VoiceProvider>
           </div>
         </div>
       )}
@@ -121,14 +133,14 @@ export function ReceptionistWidget() {
       {showTeaser && !isOpen && (
         <div
           className={cn(
-            'fixed bottom-[calc(4.5rem+0.75rem)] right-4 z-40',
+            'fixed bottom-[calc(4.5rem+3.5rem)] right-4 z-40',
             'max-w-[260px] px-4 py-3 rounded-2xl rounded-br-md',
             'bg-background border border-border shadow-lg',
             'text-sm text-foreground',
             'animate-in slide-in-from-bottom-2 fade-in duration-300',
             'cursor-pointer'
           )}
-          onClick={handleFABClick}
+          onClick={handleChatFABClick}
         >
           <button
             onClick={handleTeaserDismiss}
@@ -141,9 +153,28 @@ export function ReceptionistWidget() {
         </div>
       )}
 
-      {/* FAB (Floating Action Button) */}
+      {/* Secondary FAB: Voice (Phone icon, above primary) */}
       <button
-        onClick={handleFABClick}
+        onClick={handleVoiceFABClick}
+        className={cn(
+          'fixed bottom-[calc(1rem+3.5rem+0.5rem)] right-4 z-40',
+          'h-10 w-10 rounded-full',
+          'bg-primary/90 text-primary-foreground shadow-md',
+          'flex items-center justify-center',
+          'hover:scale-105 active:scale-95 transition-all duration-200',
+          'focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2',
+          isOpen && 'hidden'
+        )}
+        aria-label="Talk to Emma"
+        title="Talk to Emma"
+        style={{ animation: !hasAnimated && !isOpen ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' : 'none' }}
+      >
+        <Phone className="h-4 w-4" />
+      </button>
+
+      {/* Primary FAB: Chat (MessageCircle icon) */}
+      <button
+        onClick={handleChatFABClick}
         className={cn(
           'fixed bottom-4 right-4 z-40',
           'h-14 w-14 md:h-14 md:w-14 rounded-full',

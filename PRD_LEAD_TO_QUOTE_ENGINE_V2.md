@@ -254,7 +254,7 @@ The AI Quote Assistant is a conversational interface that guides homeowners thro
 | QA-007 | Capture contact information (name, email, phone) | Must Have | ✅ DONE | Validates email format, phone format (Canadian) |
 | QA-008 | Display progress indicator showing conversation stage | Should Have | ✅ DONE | "Step 2 of 5" or progress bar |
 | QA-009 | Save/resume functionality via email magic link | Should Have | ✅ DONE | Session persists for 7 days |
-| QA-010 | Voice conversation mode | Should Have | ✅ DONE | Full voice mode with OpenAI Realtime API (WebRTC). See Section 3.8 for details. |
+| QA-010 | Voice conversation mode | Should Have | ✅ DONE | Full voice mode with ElevenLabs Conversational AI (WebRTC). See Section 3.8 for details. |
 | QA-011 | Connect visualization to estimate (if user used visualizer first) | Should Have | ✅ DONE | Visualizer selections flow into quote context |
 
 ### 3.4 Conversation Flow State Machine
@@ -458,57 +458,77 @@ Note: Input fixed at bottom (thumb zone)
 - `src/components/chat/submit-request-modal.tsx` - Lead submission flow
 - `src/components/chat/estimate-sidebar.tsx` - Editable project summary
 - `src/components/chat/progress-indicator.tsx` - Multi-step progress with conditional steps
-- `src/components/chat/voice-mode.tsx` - Real-time voice conversation
+- `src/components/voice/voice-provider.tsx` - Shared voice context provider (ElevenLabs)
+- `src/components/voice/talk-button.tsx` - "Talk to [Name]" voice CTA button
+- `src/components/voice/voice-indicator.tsx` - Inline voice status strip
+- `src/components/voice/voice-transcript-message.tsx` - Voice message with headphone badge
+- `src/components/voice/persona-avatar.tsx` - Animated persona avatar for voice mode
 
-### 3.8 Voice Mode (OpenAI Realtime API)
+### 3.8 Voice Mode (ElevenLabs Conversational AI)
 
-All three AI agents support real-time voice conversation using OpenAI's Realtime API with WebRTC. Each agent uses a persona-specific voice prompt and voice ID (see Section 9: AI Agent Personas). This enables natural spoken dialogue for users who prefer voice over typing.
+All three AI agents support real-time voice conversation using ElevenLabs Conversational AI 2.0. Each agent is a dedicated ElevenLabs agent with a custom-designed voice, persona-specific system prompt, and attached knowledge base documents. Voice is unified inline with text chat — not a separate full-screen mode.
 
 **Technical Architecture:**
 ```
 ┌─────────────┐     WebRTC      ┌──────────────────┐
-│   Browser   │◄───────────────▶│ OpenAI Realtime  │
-│  (voice-    │                 │     API          │
-│   mode.tsx) │                 │  (gpt-realtime)  │
+│   Browser   │◄───────────────▶│   ElevenLabs     │
+│  (voice-    │                 │  Conversational  │
+│  provider)  │                 │   AI Agent       │
 └──────┬──────┘                 └──────────────────┘
        │
-       │ POST /api/realtime/session?persona={key}
+       │ POST /api/voice/signed-url?persona={key}
        ▼
 ┌─────────────┐
-│  Next.js    │  → Reads persona key from query param
-│   API       │  → Builds voice-optimized prompt via buildVoiceSystemPrompt()
-│             │  → Generates ephemeral client token with persona voice ID
+│  Next.js    │  → Maps persona key → ELEVENLABS_AGENT_* env var
+│   API       │  → Fetches signed WebSocket URL from ElevenLabs API
+│  (server)   │  → Returns { signedUrl } (client never sees agent IDs or API key)
 └─────────────┘
 ```
 
-**Persona-Based Voice:**
+**ElevenLabs Agent Configuration:**
 
-| Agent | Persona Key | Voice ID | Available From |
-|-------|-------------|----------|----------------|
-| Receptionist | `receptionist` | `shimmer` | Chat widget mic button |
-| Quote Specialist | `quote-specialist` | `echo` | `/estimate` voice button |
-| Design Consultant | `design-consultant` | `shimmer` | `/visualizer` mic button |
+Each persona has a dedicated ElevenLabs Conversational AI agent with:
+- **Custom-designed voice** created via Voice Design API (unique per persona)
+- **Persona-specific system prompt** with role, personality, and boundaries
+- **Attached knowledge base** documents (company profile, services, pricing, Ontario knowledge)
+- **GPT-4o LLM** (built-in, absorbed by ElevenLabs — no extra cost)
+- **`eleven_flash_v2` TTS model** (~75ms latency, optimized for real-time conversation)
 
-The `?persona=` query parameter defaults to `quote-specialist` for backward compatibility.
+| Agent | Persona Key | Custom Voice | LLM Temp | Turn Style | Knowledge Base |
+|-------|-------------|-------------|----------|------------|----------------|
+| Emma (Receptionist) | `receptionist` | Warm, welcoming Canadian woman | 0.5 | Eager | Company + Services |
+| Marcus (Cost Specialist) | `quote-specialist` | Calm, methodical Canadian man | 0.3 | Normal | Company + Services + Pricing + Ontario |
+| Mia (Design Consultant) | `design-consultant` | Enthusiastic, creative woman | 0.7 | Normal | Company + Services + Ontario |
+
+**Unified Voice + Text Experience:**
+
+Voice conversations happen inline alongside text chat, not as a separate mode:
+- `VoiceProvider` wraps each page's chat area and provides shared voice state
+- `TalkButton` ("Talk to Emma/Marcus/Mia") appears next to the text input
+- `VoiceIndicator` shows status between messages and input during active voice
+- Voice transcript entries appear in the same message list as text messages (with headphone badge)
+- Text input remains functional during voice sessions
 
 **User Flow:**
-1. Click voice/mic button in the respective chat interface
-2. System checks browser support and API availability (shows loading state)
-3. Click "Start Conversation" (full voice mode) or auto-connect (widget compact mode)
-4. Speak naturally — AI responds with voice audio using the agent's persona
-5. Transcript appears in real-time during conversation
-6. Click "Submit Transcript" to transfer conversation to text chat
-7. Continue in text mode or submit lead
+1. Click "Talk to [Name]" button in the chat interface
+2. System checks browser support and API availability
+3. Fetches signed WebSocket URL from server → connects via WebRTC
+4. Speak naturally — AI responds with custom voice using the agent's persona
+5. Transcript appears inline in the chat thread in real-time
+6. Click "End" to disconnect voice; continue in text mode or submit lead
+7. Voice and text messages are interleaved in a single conversation history
 
 **Features:**
-- Real-time audio transcription (both user and AI)
-- Audio visualizer showing voice activity (brand-colored gradient)
+- Custom-designed voices per persona (not preset voices)
+- Real-time audio transcription (both user and AI) inline with text chat
+- Animated persona avatar showing speaking/listening state
 - Mute/unmute toggle
-- Connection timeout (15s) prevents infinite spinner
-- API configuration check prevents cryptic errors
+- Call duration counter
+- Input/output volume level tracking (polled at 100ms)
+- API configuration check on mount (`/api/voice/check`)
 - Graceful fallback to text chat on errors
-- Compact mode for the receptionist widget (fits in panel without full-screen takeover)
-- Voice-optimized prompts (1-2 sentence responses, one topic at a time, verbal acknowledgments)
+- Voice-optimized prompts via ElevenLabs agent system prompts (concise, one topic at a time)
+- Knowledge base RAG for domain-specific accuracy (pricing, services, Ontario regulations)
 
 **Error Handling:**
 | Error Condition | User Message | Action |
@@ -516,20 +536,33 @@ The `?persona=` query parameter defaults to `quote-specialist` for backward comp
 | No microphone access | "Please allow microphone access..." | Prompt for permission |
 | Browser not supported | "Voice mode requires a modern browser..." | Offer text chat |
 | API not configured | "Voice mode is not available..." | Offer text chat |
-| Connection timeout | "Connection timed out..." | Retry or text chat |
-| Session expired | "Your voice session has expired..." | Start new session |
+| Connection error | "Voice connection error. Please try again." | Retry or text chat |
+| Agent not configured | "Agent not configured for [persona]" | Offer text chat |
 
 **Environment Requirements:**
-- `OPENAI_API_KEY` must be set in environment
+- `ELEVENLABS_API_KEY` — ElevenLabs API key (Pro plan, $99/mo for 1,100 ConvAI minutes)
+- `ELEVENLABS_AGENT_EMMA` — Emma's ElevenLabs agent ID
+- `ELEVENLABS_AGENT_MARCUS` — Marcus's ElevenLabs agent ID
+- `ELEVENLABS_AGENT_MIA` — Mia's ElevenLabs agent ID
 - Modern browser with WebRTC support (Chrome, Edge, Safari)
 
 **Key Implementation Files:**
-- `src/components/chat/voice-mode.tsx` - Full voice UI and WebRTC logic (quote/visualizer)
-- `src/components/receptionist/receptionist-voice.tsx` - Compact voice mode (widget)
-- `src/app/api/realtime/session/route.ts` - Session token endpoint (accepts `?persona=` param)
-- `src/app/api/realtime/check/route.ts` - API configuration check
-- `src/lib/realtime/config.ts` - Constants and types
-- `src/lib/ai/personas/prompt-assembler.ts` - `buildVoiceSystemPrompt()` builder
+- `src/components/voice/voice-provider.tsx` - Core VoiceProvider wrapping `@elevenlabs/react` useConversation
+- `src/components/voice/talk-button.tsx` - "Talk to [Name]" CTA (inline + standalone variants)
+- `src/components/voice/voice-indicator.tsx` - Status strip (avatar + state + controls)
+- `src/components/voice/voice-transcript-message.tsx` - Voice message with headphone badge
+- `src/components/voice/persona-avatar.tsx` - Animated persona avatar (speaking/listening states)
+- `src/app/api/voice/signed-url/route.ts` - Signed URL endpoint (persona → agent ID → signed URL)
+- `src/app/api/voice/check/route.ts` - API configuration check
+- `src/lib/voice/config.ts` - Voice types, error messages, browser support check, duration formatter
+
+**ElevenLabs Platform Details:**
+- **Plan:** Pro ($99/month) — 1,100 ConvAI minutes, 160 voice slots, custom LLM support
+- **TTS Model:** `eleven_flash_v2` (~75ms latency, 32 languages, optimized for ConvAI)
+- **Connection:** WebRTC via signed WebSocket URL (valid 15 min; session can exceed once connected)
+- **Concurrency:** 4-30 simultaneous sessions; burst pricing available
+- **Knowledge Base:** Up to 20MB / 300k chars per document; auto-RAG for grounded responses
+- **React SDK:** `@elevenlabs/react` — `useConversation` hook with `startSession()`, `endSession()`, `getInputVolume()`, `getOutputVolume()`
 
 ---
 
@@ -1342,7 +1375,7 @@ Each persona is defined by an `AgentPersona` interface:
 - `capabilities` — what this agent can help with
 - `boundaries` — what this agent should NOT do (routes to the right agent instead)
 - `routingSuggestions` — how to hand off to other agents with embedded CTAs
-- `voiceId` — OpenAI Realtime voice for voice mode
+- `elevenlabsAgentEnvKey` — ElevenLabs agent env var key for voice mode
 
 ### 9.3 Knowledge Base Architecture
 
@@ -1376,7 +1409,9 @@ Layer 3: Sales training (shared by all agents)
 Layer 4: Persona identity + boundaries + routing + conversation rules
 ```
 
-Voice prompts use `buildVoiceSystemPrompt(personaKey)` — same knowledge, but with voice-specific rules (1-2 sentence responses, one topic at a time, verbal acknowledgments, no formatting).
+**Text chat prompts** use `buildAgentSystemPrompt(personaKey)` — assembled from the four layers above by the prompt assembler module and sent via Vercel AI SDK to OpenAI GPT-5.2.
+
+**Voice prompts** are embedded directly in each ElevenLabs Conversational AI agent configuration. They contain equivalent knowledge but are optimized for spoken conversation (concise responses, one topic at a time, no markdown formatting). Each ElevenLabs agent also has knowledge base documents attached for RAG-grounded responses about company info, services, pricing, and Ontario regulations.
 
 ### 9.5 Smart Chat Widget
 
@@ -1400,7 +1435,7 @@ The receptionist widget is a floating UI element available on all public pages.
 - Header: Agent avatar + name + company name + close button
 - Uses Vercel AI SDK `useChat` with streaming via `/api/ai/receptionist`
 - Renders inline CTA buttons parsed from `[CTA:Label:/path]` markers in responses
-- Includes compact voice mode (WebRTC, fits in panel without full-screen takeover)
+- Includes inline voice mode via `VoiceProvider` + `TalkButton` (ElevenLabs Conversational AI)
 
 **Visibility Logic:**
 - **Hidden on:** `/estimate`, `/visualizer`, `/admin/*` (these pages have their own AI chat)
@@ -1437,7 +1472,8 @@ Renders as: text message + a clickable "Get a Free Estimate" button that navigat
 - `src/components/receptionist/receptionist-chat.tsx` — Chat container with `useChat`
 - `src/components/receptionist/receptionist-input.tsx` — Text input + voice toggle
 - `src/components/receptionist/receptionist-cta-buttons.tsx` — CTA parser and button renderer
-- `src/components/receptionist/receptionist-voice.tsx` — Compact voice mode for widget
+- `src/components/voice/voice-provider.tsx` — Shared VoiceProvider context (ElevenLabs)
+- `src/components/voice/talk-button.tsx` — "Talk to Emma" button (inline variant)
 
 **API Route:**
 - `src/app/api/ai/receptionist/route.ts` — Edge runtime streaming endpoint for receptionist
@@ -1461,6 +1497,7 @@ Renders as: text message + a clickable "Get a Free Estimate" button that navigat
 | **AI Chat** | OpenAI GPT-5.2 | @ai-sdk/openai | Via Vercel AI SDK |
 | **AI Vision** | OpenAI GPT-5.2 Vision | Multimodal | Room analysis |
 | **AI Image Gen** | Google Gemini 3 Pro | @google/generative-ai | Native SDK for image generation |
+| **AI Voice** | ElevenLabs Conversational AI | @elevenlabs/react | Custom voices, WebRTC, knowledge base RAG |
 | **AI Structured** | Vercel AI SDK | 6.0.67 | For structured outputs with Zod |
 | **Email** | Resend | 6.9.1 | With React Email templates |
 | **PDF (Quotes/Invoices)** | @react-pdf/renderer | Latest | Professional quote and invoice PDFs |
@@ -2401,8 +2438,8 @@ Required components from shadcn/ui:
 | PERSONA-004 | Receptionist API route (streaming, edge runtime) | 2 | ✅ |
 | PERSONA-005 | Chat widget FAB + proactive teaser + expandable panel | 6 | ✅ |
 | PERSONA-006 | Widget chat container with CTA parsing | 4 | ✅ |
-| PERSONA-007 | Widget text + voice input (ElevenLabs pattern) | 3 | ✅ |
-| PERSONA-008 | Compact voice mode for widget (WebRTC) | 4 | ✅ |
+| PERSONA-007 | Widget text + voice input (ElevenLabs Conversational AI) | 3 | ✅ |
+| PERSONA-008 | Inline voice mode for widget (ElevenLabs WebRTC) | 4 | ✅ |
 | PERSONA-009 | Enhance quote chat with Marcus persona | 2 | ✅ |
 | PERSONA-010 | Enhance visualizer chat with Mia persona + voice | 3 | ✅ |
 | PERSONA-011 | Voice session route — persona-aware | 2 | ✅ |
@@ -2621,18 +2658,18 @@ const PRICING_GUIDELINES = {
 
 ---
 
-## 18. AI Stack Validation (January 31, 2026)
+## 18. AI Stack Validation (February 9, 2026)
 
 ### 18.1 Validated Technology Choices
 
-The following AI technologies have been researched and validated as of January 31, 2026:
+The following AI technologies have been researched and validated as of February 9, 2026:
 
 | Component | Technology | Validation Status | Notes |
 |-----------|------------|-------------------|-------|
 | **Chat AI** | OpenAI GPT-5.2 | VALIDATED | Released Dec 11, 2025. Use GPT-5.2-Instant for real-time chat, GPT-5.2-Thinking for complex extraction. 400K context window, 128K output tokens. |
 | **Vision AI** | OpenAI GPT-5.2 Vision | VALIDATED | Multimodal capabilities included in GPT-5.2. Excellent for room analysis and photo interpretation. |
 | **Image Gen** | Google Gemini 3 Pro Image (Nano Banana Pro) | VALIDATED | Best for renovation visualization. Supports structure-preserving edits and up to 4K resolution. Use `structureReferenceStrength: 0.85` for room geometry preservation. |
-| **Voice Mode** | OpenAI Realtime API | VALIDATED | Real-time voice conversation via WebRTC. Enables natural spoken dialogue for renovation project descriptions. See Section 3.8. |
+| **Voice Mode** | ElevenLabs Conversational AI 2.0 | VALIDATED | Real-time voice conversation via WebRTC with custom-designed voices, knowledge base RAG, and per-persona agents. Migrated from OpenAI Realtime API for superior voice quality, custom voices, and lower cost. See Section 3.8. |
 | **Estimation** | Internal Pricing Guidelines | VALIDATED | RSMeans Data ($1,000+/year) is overkill for SMB. Internal guidelines with contractor input are more practical and maintainable. |
 
 ### 18.2 Alternative Considerations
@@ -2640,26 +2677,30 @@ The following AI technologies have been researched and validated as of January 3
 | Alternative | Considered For | Decision |
 |-------------|----------------|----------|
 | Imagen 3 (Vertex AI) | Image generation | Consider for highest photorealistic quality. Requires Vertex AI setup. Gemini 3 Pro Image is simpler for MVP. |
-| Claude 3.5 Sonnet | Chat AI | GPT-5.2 selected for consistency with vision/realtime ecosystem. Claude remains viable alternative. |
-| ElevenLabs | Voice synthesis | Not needed for v1. Consider for quote read-back in v2. |
+| Claude 3.5 Sonnet | Chat AI | GPT-5.2 selected for consistency with vision ecosystem. Claude remains viable alternative. |
+| OpenAI Realtime API | Voice mode | Used in v1, replaced by ElevenLabs Conversational AI for custom voices, knowledge base RAG, superior turn-taking, and ~3x lower cost per minute. |
 
-### 18.3 API Pricing Reference (as of Jan 2026)
+### 18.3 API Pricing Reference (as of Feb 2026)
 
 | API | Tier | Price | Est. Monthly Cost |
 |-----|------|-------|-------------------|
 | GPT-5.2-Instant | Input | $5/1M tokens | ~$15 (500 leads/mo) |
 | GPT-5.2-Instant | Output | $20/1M tokens | ~$40 (500 leads/mo) |
 | Gemini 3 Pro Image | Generation | $0.02/image | ~$40 (2000 images/mo) |
+| ElevenLabs | Pro plan | $99/mo | $99 (1,100 ConvAI minutes, LLM costs absorbed) |
 | Supabase | Free tier | $0 | $0 (up to 500MB) |
 | Vercel | Pro | $20/mo | $20 |
 | Resend | Free tier | $0 | $0 (100 emails/day) |
-| **Total Estimated** | | | **~$115/month** |
+| **Total Estimated** | | | **~$214/month** |
 
 ### 18.4 Implementation Packages
 
 ```bash
 # Required AI packages
 npm install ai @ai-sdk/openai @ai-sdk/google zod
+
+# Voice (ElevenLabs Conversational AI)
+npm install @elevenlabs/react
 
 # Required infrastructure
 npm install @supabase/supabase-js @supabase/ssr
@@ -2781,6 +2822,10 @@ CONFIGURATION
 9. [ ] Configure environment variables:
        - OPENAI_API_KEY
        - GOOGLE_GENERATIVE_AI_API_KEY
+       - ELEVENLABS_API_KEY
+       - ELEVENLABS_AGENT_EMMA (receptionist agent ID)
+       - ELEVENLABS_AGENT_MARCUS (quote specialist agent ID)
+       - ELEVENLABS_AGENT_MIA (design consultant agent ID)
        - NEXT_PUBLIC_SUPABASE_URL
        - SUPABASE_SERVICE_ROLE_KEY
        - RESEND_API_KEY
@@ -2882,7 +2927,8 @@ lead_quote_engine_v2/
 │   │   │   ├── drawings/       # Drawing CRUD
 │   │   │   ├── invoices/       # Invoice CRUD, payments, PDF, email, Sage export
 │   │   │   ├── leads/          # Lead CRUD
-│   │   │   └── ai/             # AI chat, visualize, quote generation
+│   │   │   ├── ai/             # AI chat, visualize, quote generation
+│   │   │   └── voice/          # ElevenLabs signed URL + config check
 │   │   ├── estimate/           # Quote assistant
 │   │   ├── visualizer/         # Design visualizer
 │   │   └── ...                 # Marketing pages
@@ -2891,8 +2937,9 @@ lead_quote_engine_v2/
 │   │   ├── cad/                # CAD editor (canvas, panels, tools, state, lib)
 │   │   ├── chat/               # Chat components
 │   │   ├── visualizer/         # Visualizer components
-│   │   └── ui/                 # shadcn/ui components
-│   │   └── receptionist/       # Smart chat widget (FAB, panel, voice)
+│   │   ├── voice/              # Shared voice components (ElevenLabs)
+│   │   ├── ui/                 # shadcn/ui components
+│   │   └── receptionist/       # Smart chat widget (FAB, panel)
 │   ├── lib/
 │   │   ├── ai/                 # AI services
 │   │   │   ├── knowledge/      # Shared knowledge base (company, services, pricing, Ontario, sales)
@@ -2902,6 +2949,7 @@ lead_quote_engine_v2/
 │   │   ├── export/             # Sage 50 CSV export
 │   │   ├── pdf/                # PDF generation (quotes + invoices)
 │   │   ├── pricing/            # Pricing engine
+│   │   ├── voice/              # ElevenLabs voice config, types, and utilities
 │   │   └── schemas/            # Zod schemas (leads, quotes, invoices, drawings, visualizer)
 │   └── types/                  # TypeScript types
 ├── supabase/

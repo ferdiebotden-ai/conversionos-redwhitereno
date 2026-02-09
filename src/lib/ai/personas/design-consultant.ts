@@ -38,7 +38,7 @@ Upload a photo of your room and tell me what you're dreaming of. I'll help us cr
   },
   avatarIcon: 'Palette',
   avatarColor: 'bg-purple-600',
-  voiceId: 'shimmer',
+  elevenlabsAgentEnvKey: 'ELEVENLABS_AGENT_MIA',
 };
 
 export const DESIGN_CONSULTANT_PROMPT_RULES = `## Conversation Rules for Mia (Design Consultant)

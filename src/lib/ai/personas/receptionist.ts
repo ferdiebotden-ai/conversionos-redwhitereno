@@ -41,7 +41,7 @@ Whether you're dreaming about a new kitchen, bathroom refresh, or basement trans
   },
   avatarIcon: 'MessageCircle',
   avatarColor: 'bg-primary',
-  voiceId: 'shimmer',
+  elevenlabsAgentEnvKey: 'ELEVENLABS_AGENT_EMMA',
 };
 
 export const RECEPTIONIST_PROMPT_RULES = `## Conversation Rules for Emma (Receptionist)
