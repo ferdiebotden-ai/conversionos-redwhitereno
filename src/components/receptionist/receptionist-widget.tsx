@@ -2,16 +2,19 @@
 
 /**
  * Receptionist Widget
- * Floating chat widget with dual FABs (text + voice), proactive teaser, and expandable panel
+ * Single FAB chat widget with text/voice mode toggle inside the panel
  * Features Emma, the virtual receptionist
+ * Animated with Framer Motion spring physics
  */
 
 import { useState, useEffect, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { MessageCircle, X, Phone } from 'lucide-react';
+import { MessageCircle, X, AudioLines } from 'lucide-react';
 import { ReceptionistChat } from './receptionist-chat';
-import { VoiceProvider } from '@/components/voice/voice-provider';
+import { VoiceProvider, useVoice } from '@/components/voice/voice-provider';
+import { panelSpring } from '@/lib/animations';
 
 /** Pages where the widget is hidden (these have their own AI chat) */
 const HIDDEN_PATHS = ['/estimate', '/visualizer'];
@@ -34,8 +37,8 @@ const DEFAULT_TEASER = 'Hi! I\'m Emma. Need help with a renovation project?';
 
 export function ReceptionistWidget() {
   const pathname = usePathname();
+  const shouldReduce = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);
-  const [startInVoiceMode, setStartInVoiceMode] = useState(false);
   const [showTeaser, setShowTeaser] = useState(false);
   const [teaserDismissed, setTeaserDismissed] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
@@ -63,16 +66,8 @@ export function ReceptionistWidget() {
     return () => clearTimeout(timer);
   }, [hasAnimated]);
 
-  const handleChatFABClick = useCallback(() => {
-    setStartInVoiceMode(false);
+  const handleFABClick = useCallback(() => {
     setIsOpen(prev => !prev);
-    setShowTeaser(false);
-    setTeaserDismissed(true);
-  }, []);
-
-  const handleVoiceFABClick = useCallback(() => {
-    setStartInVoiceMode(true);
-    setIsOpen(true);
     setShowTeaser(false);
     setTeaserDismissed(true);
   }, []);
@@ -90,97 +85,70 @@ export function ReceptionistWidget() {
   return (
     <>
       {/* Chat Panel */}
-      {isOpen && (
-        <div
-          className={cn(
-            'fixed bottom-20 right-4 z-40',
-            'w-[calc(100vw-2rem)] max-w-[400px] h-[520px]',
-            'bg-background rounded-2xl shadow-2xl border border-border',
-            'flex flex-col overflow-hidden',
-            'animate-in slide-in-from-bottom-4 fade-in duration-250'
-          )}
-        >
-          {/* Panel Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-primary text-primary-foreground rounded-t-2xl">
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">
-                <MessageCircle className="h-4 w-4" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold">Emma</p>
-                <p className="text-xs opacity-80">Red White Reno</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="h-8 w-8 rounded-full hover:bg-primary-foreground/20 flex items-center justify-center transition-colors"
-              aria-label="Close chat"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-
-          {/* Chat Content — wrapped in VoiceProvider */}
-          <div className="flex-1 min-h-0">
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={shouldReduce ? false : { opacity: 0, y: 24, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 16, scale: 0.97 }}
+            transition={panelSpring}
+            className={cn(
+              'fixed bottom-20 right-4 z-40',
+              'w-[calc(100vw-2rem)] max-w-[400px] h-[520px]',
+              'bg-background rounded-2xl shadow-2xl border border-border',
+              'flex flex-col overflow-hidden'
+            )}
+          >
+            {/* Chat Content — wrapped in VoiceProvider */}
             <VoiceProvider>
-              <ReceptionistChat startInVoiceMode={startInVoiceMode} />
+              <WidgetPanelHeader onClose={() => setIsOpen(false)} />
+              <div className="flex-1 min-h-0">
+                <ReceptionistChat />
+              </div>
             </VoiceProvider>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Proactive Teaser Bubble */}
-      {showTeaser && !isOpen && (
-        <div
-          className={cn(
-            'fixed bottom-[calc(4.5rem+3.5rem)] right-4 z-40',
-            'max-w-[260px] px-4 py-3 rounded-2xl rounded-br-md',
-            'bg-background border border-border shadow-lg',
-            'text-sm text-foreground',
-            'animate-in slide-in-from-bottom-2 fade-in duration-300',
-            'cursor-pointer'
-          )}
-          onClick={handleChatFABClick}
-        >
-          <button
-            onClick={handleTeaserDismiss}
-            className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-muted border border-border flex items-center justify-center text-muted-foreground hover:text-foreground"
-            aria-label="Dismiss"
+      <AnimatePresence>
+        {showTeaser && !isOpen && (
+          <motion.div
+            initial={shouldReduce ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8, transition: { duration: 0.15 } }}
+            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            className={cn(
+              'fixed bottom-20 right-4 z-40',
+              'max-w-[260px] px-4 py-3 rounded-2xl rounded-br-md',
+              'bg-background border border-border shadow-lg',
+              'text-sm text-foreground',
+              'cursor-pointer'
+            )}
+            onClick={handleFABClick}
           >
-            <X className="h-3 w-3" />
-          </button>
-          {teaserMessage}
-        </div>
-      )}
-
-      {/* Secondary FAB: Voice (Phone icon, above primary) */}
-      <button
-        onClick={handleVoiceFABClick}
-        className={cn(
-          'fixed bottom-[calc(1rem+3.5rem+0.5rem)] right-4 z-40',
-          'h-10 w-10 rounded-full',
-          'bg-primary/90 text-primary-foreground shadow-md',
-          'flex items-center justify-center',
-          'hover:scale-105 active:scale-95 transition-all duration-200',
-          'focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2',
-          isOpen && 'hidden'
+            <button
+              onClick={handleTeaserDismiss}
+              className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-muted border border-border flex items-center justify-center text-muted-foreground hover:text-foreground"
+              aria-label="Dismiss"
+            >
+              <X className="h-3 w-3" />
+            </button>
+            {teaserMessage}
+          </motion.div>
         )}
-        aria-label="Talk to Emma"
-        title="Talk to Emma"
-        style={{ animation: !hasAnimated && !isOpen ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' : 'none' }}
-      >
-        <Phone className="h-4 w-4" />
-      </button>
+      </AnimatePresence>
 
-      {/* Primary FAB: Chat (MessageCircle icon) */}
-      <button
-        onClick={handleChatFABClick}
+      {/* Single FAB */}
+      <motion.button
+        onClick={handleFABClick}
+        {...(!shouldReduce && { whileHover: { scale: 1.08 }, whileTap: { scale: 0.92 } })}
         className={cn(
           'fixed bottom-4 right-4 z-40',
-          'h-14 w-14 md:h-14 md:w-14 rounded-full',
+          'h-14 w-14 rounded-full',
           'bg-primary text-primary-foreground shadow-lg',
           'flex items-center justify-center',
-          'hover:scale-105 active:scale-95 transition-all duration-200',
+          'transition-colors duration-200',
           'focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2',
           !hasAnimated && !isOpen && 'animate-pulse'
         )}
@@ -192,7 +160,43 @@ export function ReceptionistWidget() {
         ) : (
           <MessageCircle className="h-6 w-6" />
         )}
-      </button>
+      </motion.button>
     </>
+  );
+}
+
+/**
+ * Panel header with Emma info and close button.
+ * Uses VoiceProvider context to show voice status.
+ */
+function WidgetPanelHeader({ onClose }: { onClose: () => void }) {
+  const { status } = useVoice();
+  const isVoiceActive = status === 'connected' || status === 'connecting';
+
+  return (
+    <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-primary text-primary-foreground rounded-t-2xl">
+      <div className="flex items-center gap-3">
+        <div className="h-8 w-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">
+          {isVoiceActive ? (
+            <AudioLines className="h-4 w-4 animate-pulse" />
+          ) : (
+            <MessageCircle className="h-4 w-4" />
+          )}
+        </div>
+        <div>
+          <p className="text-sm font-semibold">Emma</p>
+          <p className="text-xs opacity-80">
+            {isVoiceActive ? 'Listening...' : 'Red White Reno'}
+          </p>
+        </div>
+      </div>
+      <button
+        onClick={onClose}
+        className="h-8 w-8 rounded-full hover:bg-primary-foreground/20 flex items-center justify-center transition-colors"
+        aria-label="Close chat"
+      >
+        <X className="h-4 w-4" />
+      </button>
+    </div>
   );
 }

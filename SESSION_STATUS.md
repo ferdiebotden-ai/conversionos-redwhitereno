@@ -1,8 +1,8 @@
 # Session Status - Lead-to-Quote Engine v2
 
-> **Last Updated:** February 10, 2026 (State-of-the-Art Visualizer Upgrade — GPT-5.2 + Depth/Edge Conditioning)
+> **Last Updated:** February 11, 2026 (Framer Motion Animation Sprint — scroll reveals, stagger effects, spring physics)
 > **Status:** LAUNCHED - Production Ready & Deployed
-> **Current Phase:** Phase 11: Visualizer Intelligence Upgrade (COMPLETE) — GPT-5.2 vision, spatial analysis, structural conditioning pipeline
+> **Current Phase:** Phase 12: UI Animation Polish (COMPLETE) — Framer Motion scroll reveals, stagger effects, auto-reveal slider, spring widget
 
 ## North Star (Don't Forget)
 We're building an AI-native lead-to-quote platform for renovation contractors. Users chat with AI to describe their project, upload photos for instant visualization, and get ballpark estimates in minutes instead of days. First client: Red White Reno (Stratford, ON).
@@ -13,11 +13,12 @@ We're building an AI-native lead-to-quote platform for renovation contractors. U
 
 | Metric | Status |
 |--------|--------|
-| Current Phase | Phase 11: Visualizer Intelligence Upgrade (COMPLETE) — GPT-5.2 + depth/edge conditioning |
+| Current Phase | Phase 12: UI Animation Polish (COMPLETE) — Framer Motion scroll reveals + spring physics |
 | Next Task ID | N/A - All Tasks Complete |
 | Blockers | None |
 | Build Status | Passing |
 | Unit Tests | 236/236 passing (55 core + 90 visualizer + 91 invoice/drawing) |
+| New Dependency | framer-motion (~32KB gzipped) |
 | E2E Tests | 268/333 passing, 48 skipped, 17 failed (all pre-existing AI/email API-dependent) |
 | Production URL | https://leadquoteenginev2.vercel.app |
 | Branch | feature/dev-003-shadcn-ui |
@@ -139,6 +140,55 @@ We're building an AI-native lead-to-quote platform for renovation contractors. U
 ---
 
 ## Recent Session Log
+
+### Session: February 11, 2026 (Framer Motion Animation Sprint)
+**Completed:**
+- Installed `framer-motion` and created shared animation utilities (`src/lib/animations.ts`)
+- Created reusable motion wrapper components (`src/components/motion.tsx`) — FadeInUp, FadeIn, ScaleIn, StaggerContainer, StaggerItem
+- **Home page**: Hero staggered text reveal on load, scroll-triggered section reveals for AI Features, Services, Why Choose Us, Testimonials, CTA
+- **Services grid**: Converted to client component with stagger-in animation on scroll
+- **Testimonials**: Converted to client component with stagger-in animation on scroll
+- **Before/After slider**: Auto-reveal from 0% to 50% over 1.2s on mount, user takes over after
+- **Result display**: ScaleIn for success header, FadeInUp for before/after + thumbnails, staggered action buttons
+- **Receptionist widget**: Spring physics for chat panel entrance/exit (AnimatePresence), spring teaser bubble, whileHover/whileTap micro-interactions on FAB
+- **Project gallery**: AnimatePresence filter transitions with per-card stagger on filter change
+- All animations respect `prefers-reduced-motion` via `useReducedMotion()` hook
+- Home page stays as server component (SEO preserved) using "donut pattern" with client motion wrappers
+
+**New Files Created (2):**
+- `src/lib/animations.ts` — Shared Framer Motion variants (fadeInUp, fadeIn, scaleIn, staggerContainer, staggerItem, panelSpring)
+- `src/components/motion.tsx` — Reusable client-side motion wrappers with reduced motion support
+
+**Files Modified (7):**
+- `src/app/page.tsx` — Scroll reveals on all sections, hero stagger
+- `src/components/services-grid.tsx` — StaggerContainer + StaggerItem wrapping
+- `src/components/testimonials.tsx` — StaggerContainer + StaggerItem wrapping
+- `src/components/visualizer/before-after-slider.tsx` — Auto-reveal animation via `animate()` from framer-motion
+- `src/components/visualizer/result-display.tsx` — ScaleIn, FadeInUp, StaggerContainer wrapping
+- `src/components/receptionist/receptionist-widget.tsx` — AnimatePresence spring entrance/exit, motion.button FAB
+- `src/components/project-gallery.tsx` — AnimatePresence mode="wait" for filter changes
+
+**New Dependency:**
+- `framer-motion` — ~32KB gzipped, React animation library
+
+**Build Status:** Passing (236/236 unit tests, build clean)
+
+**Decisions Made:**
+- Framer Motion over GSAP/Lottie — native React integration, smaller bundle, declarative API
+- No Remotion now — parked for Phase 2 social sharing video clips
+- Server component preserved for home page — client motion wrappers accept server children via composition pattern
+- `useReducedMotion()` on all animated components for accessibility
+- `exactOptionalPropertyTypes` fix: spread `whileHover`/`whileTap` conditionally instead of passing `undefined`
+
+**Blockers:** None
+
+**Next Session:**
+1. Deploy to Vercel and visual check animations on production
+2. Lighthouse audit — verify LCP <2.5s, CLS <0.1
+3. Test on 375px mobile viewport for smooth animations
+4. Add RESEND_API_KEY for email functionality
+
+---
 
 ### Session: February 10, 2026 (State-of-the-Art Visualizer Upgrade)
 **Completed:**
@@ -905,6 +955,7 @@ SELECT set_admin_role('email@example.com');
 
 | Date | Session | Changes |
 |------|---------|---------|
+| 2026-02-11 | UI Animation Sprint | Framer Motion scroll reveals, hero stagger, service/testimonial card stagger, before/after auto-reveal, widget spring physics, gallery filter transitions, prefers-reduced-motion support |
 | 2026-02-10 | Visualizer Intelligence Upgrade | GPT-5.2 vision, enhanced spatial analysis schema, depth estimation (Replicate), edge detection (sharp), multi-image Gemini pipeline, iterative refinement, AnalysisFeedback UX, 236 tests passing |
 | 2026-02-09 | Multi-Tenancy Consolidation | Single Supabase DB with site_id isolation, 35+ files updated, migration applied, both Vercel apps deployed and verified, demo Supabase paused |
 | 2026-02-09 | AI Agent Personas & Smart Chat Widget | 3 named AI personas (Emma/Marcus/Mia), floating chat widget with FAB + teaser + voice, knowledge base architecture, persona-based voice prompts, PRD v5.0 update (brand-agnostic) |

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 import { ProjectCard, type Project } from "@/components/project-card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -75,6 +76,7 @@ type FilterType = "all" | Project["type"]
 
 export function ProjectGallery() {
   const [filter, setFilter] = React.useState<FilterType>("all")
+  const shouldReduce = useReducedMotion()
 
   const filteredProjects =
     filter === "all"
@@ -123,12 +125,32 @@ export function ProjectGallery() {
         </TabsList>
       </Tabs>
 
-      {/* Project Grid */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {filteredProjects.map((project) => (
-          <ProjectCard key={project.id} project={project} />
-        ))}
-      </div>
+      {/* Project Grid — animate on filter change */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={filter}
+          initial={shouldReduce ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {filteredProjects.map((project, i) => (
+            <motion.div
+              key={project.id}
+              initial={shouldReduce ? false : { opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.35,
+                delay: shouldReduce ? 0 : i * 0.06,
+                ease: [0.25, 0.46, 0.45, 0.94],
+              }}
+            >
+              <ProjectCard project={project} />
+            </motion.div>
+          ))}
+        </motion.div>
+      </AnimatePresence>
 
       {filteredProjects.length === 0 && (
         <div className="py-12 text-center">

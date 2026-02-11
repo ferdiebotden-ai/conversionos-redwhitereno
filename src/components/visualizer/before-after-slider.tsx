@@ -2,10 +2,11 @@
 
 /**
  * Before/After Slider
- * Interactive comparison slider for visualizations
+ * Interactive comparison slider with auto-reveal animation on mount
  */
 
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { animate, useReducedMotion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { GripVertical } from 'lucide-react';
 
@@ -24,9 +25,26 @@ export function BeforeAfterSlider({
   afterLabel = 'After',
   className,
 }: BeforeAfterSliderProps) {
-  const [sliderPosition, setSliderPosition] = useState(50);
+  const shouldReduce = useReducedMotion();
+  const [sliderPosition, setSliderPosition] = useState(shouldReduce ? 50 : 0);
   const [isDragging, setIsDragging] = useState(false);
+  const [hasRevealed, setHasRevealed] = useState(!!shouldReduce);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Auto-reveal animation: slide from 0% to 50% on mount
+  useEffect(() => {
+    if (hasRevealed) return;
+
+    const controls = animate(0, 50, {
+      duration: 1.2,
+      ease: [0.25, 0.46, 0.45, 0.94],
+      delay: 0.5,
+      onUpdate: (value) => setSliderPosition(value),
+      onComplete: () => setHasRevealed(true),
+    });
+
+    return () => controls.stop();
+  }, [hasRevealed]);
 
   // Handle mouse/touch movement
   const updatePosition = useCallback((clientX: number) => {
@@ -42,6 +60,7 @@ export function BeforeAfterSlider({
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     setIsDragging(true);
+    setHasRevealed(true);
     updatePosition(e.clientX);
   }, [updatePosition]);
 
@@ -60,6 +79,7 @@ export function BeforeAfterSlider({
   // Touch events
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     setIsDragging(true);
+    setHasRevealed(true);
     const touch = e.touches[0];
     if (touch) {
       updatePosition(touch.clientX);

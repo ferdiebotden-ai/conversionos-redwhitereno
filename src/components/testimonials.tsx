@@ -1,4 +1,7 @@
+'use client';
+
 import { Card, CardContent } from "@/components/ui/card"
+import { StaggerContainer, StaggerItem } from "@/components/motion"
 import { Star } from "lucide-react"
 
 const testimonials = [
@@ -38,11 +41,13 @@ const testimonials = [
 
 export function Testimonials() {
   return (
-    <div className="grid gap-6 md:grid-cols-2">
+    <StaggerContainer className="grid gap-6 md:grid-cols-2">
       {testimonials.map((testimonial) => (
-        <TestimonialCard key={testimonial.id} testimonial={testimonial} />
+        <StaggerItem key={testimonial.id}>
+          <TestimonialCard testimonial={testimonial} />
+        </StaggerItem>
       ))}
-    </div>
+    </StaggerContainer>
   )
 }
 
